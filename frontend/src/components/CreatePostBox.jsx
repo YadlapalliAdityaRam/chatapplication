@@ -13,25 +13,33 @@ export default function CreatePostBox() {
   const { data: meData } = useQuery(GET_ME);
   const myAvatar = meData?.getMe?.avatar;
   const [text, setText] = useState('');
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
 
   const [createPost, { loading: creating }] = useMutation(CREATE_POST, {
     refetchQueries: [{ query: GET_POSTS }],
     onCompleted: () => {
       setText('');
-      setImage('');
+      setImages([]);
       setShowEmoji(false);
     }
   });
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    files.forEach(file => {
       const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result);
+      reader.onloadend = () => {
+        setImages(prev => [...prev, reader.result]);
+      };
       reader.readAsDataURL(file);
-    }
+    });
+  };
+
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const onEmojiClick = (emojiObject) => {
@@ -40,8 +48,8 @@ export default function CreatePostBox() {
 
   const handlePost = (e) => {
     e.preventDefault();
-    if (!text && !image) return;
-    createPost({ variables: { text, image } });
+    if (!text && images.length === 0) return;
+    createPost({ variables: { text, images } });
   };
 
   return (
@@ -69,17 +77,21 @@ export default function CreatePostBox() {
           </div>
         )}
 
-        {image && (
-          <div className="preview-image-container">
-            <img src={image} alt="Preview" className="preview-image" />
-            <button type="button" onClick={() => setImage('')} className="remove-image">×</button>
+        {images.length > 0 && (
+          <div className="preview-images-container" style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
+            {images.map((img, idx) => (
+              <div key={idx} className="preview-image-wrapper" style={{ position: 'relative', flexShrink: 0 }}>
+                <img src={img} alt={`Preview ${idx}`} style={{ height: '80px', borderRadius: '8px', objectFit: 'cover' }} />
+                <button type="button" onClick={() => removeImage(idx)} className="remove-image" style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'rgba(0,0,0,0.7)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '12px' }}>×</button>
+              </div>
+            ))}
           </div>
         )}
         
         <div className="create-post-actions">
           <div className="left-actions">
             <label className="image-upload-btn">
-              <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+              <input type="file" accept="image/*" multiple onChange={handleImageChange} hidden />
               <ImagePlus size={20} /> Photo
             </label>
             <button 
@@ -90,7 +102,7 @@ export default function CreatePostBox() {
               {showEmoji ? <><Keyboard size={20} /> Text Mode</> : <><Smile size={20} /> Emoji Mode</>}
             </button>
           </div>
-          <button type="submit" className="post-submit-btn" disabled={creating || (!text && !image)}>
+          <button type="submit" className="post-submit-btn" disabled={creating || (!text && images.length === 0)}>
             <Send size={16} /> Post
           </button>
         </div>

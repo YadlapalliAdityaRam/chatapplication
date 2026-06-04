@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { TOGGLE_LIKE, ADD_COMMENT, DELETE_POST, DELETE_COMMENT } from '../graphql/mutations';
 import { GET_POSTS, GET_USER_PROFILE } from '../graphql/queries';
 import { useAuth } from '../context/AuthContext';
-import { Heart, MessageSquare, Share2, Trash2, User, X } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Trash2, User, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { timeAgo } from '../utils/formatTime';
 import { Link } from 'react-router-dom';
@@ -34,6 +34,9 @@ export default function PostCard({ post }) {
   const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const allImages = post.images && post.images.length > 0 ? post.images : (post.image ? [post.image] : []);
 
   const [toggleLike] = useMutation(TOGGLE_LIKE);
   const [addComment] = useMutation(ADD_COMMENT);
@@ -93,13 +96,39 @@ export default function PostCard({ post }) {
       
       <div className="post-content">
         {post.text && <p>{renderTextWithMentions(post.text)}</p>}
-        {post.image && (
-          <img 
-            src={post.image} 
-            alt="Post content" 
-            className="post-image" 
-            onClick={() => setShowImageModal(true)}
-          />
+        {allImages.length > 0 && (
+          <div className="post-carousel-container" style={{ position: 'relative' }}>
+            {allImages.length > 1 && (
+              <>
+                <button 
+                  className="carousel-btn prev-btn" 
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => prev === 0 ? allImages.length - 1 : prev - 1); }}
+                  style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: 'white', padding: '5px', cursor: 'pointer', zIndex: 2 }}
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  className="carousel-btn next-btn" 
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => prev === allImages.length - 1 ? 0 : prev + 1); }}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: 'white', padding: '5px', cursor: 'pointer', zIndex: 2 }}
+                >
+                  <ChevronRight size={24} />
+                </button>
+                <div className="carousel-dots" style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px', zIndex: 2 }}>
+                  {allImages.map((_, i) => (
+                    <span key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === currentImageIndex ? '#1da1f2' : 'rgba(255,255,255,0.5)' }} />
+                  ))}
+                </div>
+              </>
+            )}
+            
+            <img 
+              src={allImages[currentImageIndex]} 
+              alt="Post content" 
+              className="post-image" 
+              onClick={() => setShowImageModal(true)}
+            />
+          </div>
         )}
       </div>
 
@@ -204,7 +233,25 @@ export default function PostCard({ post }) {
               <button className="image-modal-close" onClick={() => setShowImageModal(false)}>
                 <X size={20} color="#fff" />
               </button>
-              <img src={post.image} alt="Full post" className="image-modal-img" />
+              <img src={allImages[currentImageIndex]} alt="Full post" className="image-modal-img" />
+              
+              {allImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => prev === 0 ? allImages.length - 1 : prev - 1); }}
+                    style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', color: 'white', padding: '10px', cursor: 'pointer', zIndex: 12, transition: 'background 0.2s' }}
+                  >
+                    <ChevronLeft size={32} />
+                  </button>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => prev === allImages.length - 1 ? 0 : prev + 1); }}
+                    style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', color: 'white', padding: '10px', cursor: 'pointer', zIndex: 12, transition: 'background 0.2s' }}
+                  >
+                    <ChevronRight size={32} />
+                  </button>
+                </>
+              )}
+
               {post.text && (
                 <div className="image-modal-text">
                   {renderTextWithMentions(post.text)}

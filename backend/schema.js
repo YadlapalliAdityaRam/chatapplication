@@ -19,6 +19,7 @@ const typeDefs = gql`
     authorDetails: User
     text: String
     image: String
+    images: [String]
     likes: [String]
     comments: [Comment]
     createdAt: String
@@ -82,7 +83,7 @@ const typeDefs = gql`
   type Mutation {
     register(username: String!, name: String!, email: String!, password: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
-    createPost(text: String, image: String): Post
+    createPost(text: String, image: String, images: [String]): Post
     toggleLike(postId: ID!): Post
     addComment(postId: ID!, text: String!): Post
     toggleFollow(username: String!): UserProfile
@@ -163,12 +164,12 @@ const resolvers = {
       return { token, username: user.username };
     },
 
-    createPost: async (_, { text, image }, context) => {
+    createPost: async (_, { text, image, images }, context) => {
       if (!context.user) throw new Error('Authentication required');
-      if (!text && !image) throw new Error('Post must have text or image');
+      if (!text && !image && (!images || images.length === 0)) throw new Error('Post must have text or image');
 
       const authorName = context.user.username;
-      const post = new Post({ author: authorName, text, image });
+      const post = new Post({ author: authorName, text, image, images });
       await post.save();
 
       // Notify followers

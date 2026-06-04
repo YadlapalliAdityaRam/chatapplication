@@ -12,6 +12,7 @@ export const GET_POSTS = gql`
       }
       text
       image
+      images
       likes
       createdAt
       comments {
@@ -74,6 +75,7 @@ export const GET_USER_PROFILE = gql`
         }
         text
         image
+        images
         likes
         createdAt
         comments {

@@ -19,8 +19,8 @@ export const LOGIN = gql`
 `;
 
 export const CREATE_POST = gql`
-  mutation CreatePost($text: String, $image: String) {
-    createPost(text: $text, image: $image) {
+  mutation CreatePost($text: String, $image: String, $images: [String]) {
+    createPost(text: $text, image: $image, images: $images) {
       id
       author
       authorDetails {
@@ -30,6 +30,7 @@ export const CREATE_POST = gql`
       }
       text
       image
+      images
       likes
       createdAt
       comments {

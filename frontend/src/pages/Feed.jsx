@@ -6,6 +6,7 @@ import { Search, Sun, Moon, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import CreatePostBox from '../components/CreatePostBox';
+import { PostSkeleton } from '../components/SkeletonLoader';
 import { useAuth } from '../context/AuthContext';
 import './Feed.css';
 
@@ -106,7 +107,13 @@ export default function Feed() {
       </div>
 
       <div className="posts-list">
-        {loading && <div className="loading">Loading posts...</div>}
+        {loading && (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
+        )}
         {error && <div className="error">Error loading posts.</div>}
         {filteredPosts.map((post, i) => (
           <motion.div 

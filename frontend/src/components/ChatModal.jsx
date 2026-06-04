@@ -7,6 +7,7 @@ import { X, Send, ImagePlus, ShieldAlert } from 'lucide-react';
 import { timeAgo } from '../utils/formatTime';
 import MentionInput from './MentionInput';
 import ConfirmModal from './ConfirmModal';
+import { ChatSkeleton } from './SkeletonLoader';
 import './ChatModal.css';
 
 export default function ChatModal({ withUser, onClose }) {
@@ -16,7 +17,7 @@ export default function ChatModal({ withUser, onClose }) {
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const { data, refetch } = useQuery(GET_CONVERSATION, {
+  const { data, loading, refetch } = useQuery(GET_CONVERSATION, {
     variables: { withUser },
     pollInterval: 2000, // Short-polling for "live" chat
     fetchPolicy: 'network-only'
@@ -81,7 +82,9 @@ export default function ChatModal({ withUser, onClose }) {
         </div>
 
         <div className="chat-messages">
-          {messages.length === 0 ? (
+          {loading ? (
+            <ChatSkeleton />
+          ) : messages.length === 0 ? (
             <div className="no-messages">Say hi to {withUser}!</div>
           ) : (
             messages.map(msg => {

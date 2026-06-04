@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
 import { ImagePlus, User } from 'lucide-react';
 import ChatModal from '../components/ChatModal';
+import { ProfileSkeleton, PostSkeleton } from '../components/SkeletonLoader';
 import './Profile.css';
 
 export default function Profile() {
@@ -55,7 +56,13 @@ export default function Profile() {
   const [editAvatar, setEditAvatar] = useState('');
   const [activeTab, setActiveTab] = useState('Posts');
 
-  if (loading) return <div className="loading-state">Loading Profile...</div>;
+  if (loading) return (
+    <div className="profile-page">
+      <ProfileSkeleton />
+      <PostSkeleton />
+      <PostSkeleton />
+    </div>
+  );
   if (error) return <div className="error-state">User not found</div>;
 
   const { user, posts } = data.getUserProfile;

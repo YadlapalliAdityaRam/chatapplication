@@ -9,7 +9,8 @@ const commentSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   author: { type: String, required: true }, // username of the creator
   text: { type: String },
-  image: { type: String }, // Base64 image string
+  image: { type: String }, // Legacy compatibility
+  images: [{ type: String }], // Array of Base64 image strings
   likes: [{ type: String }], // Array of usernames who liked
   comments: [commentSchema],
 }, { timestamps: true });
