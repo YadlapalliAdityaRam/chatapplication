@@ -38,6 +38,23 @@
     width: 56px;
     height: 56px;
   }
+  .search-bar {
+    padding: 8px 12px;
+  }
+  .search-bar input {
+    font-size: 0.9rem;
+  }
+  .feed-header-actions {
+    gap: 8px;
+  }
+  .feed-header-actions .theme-toggle-btn,
+  .feed-profile-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .search-action-btn {
+    display: none; /* Hide redundant search button on very small screens */
+  }
 }
 
 /* Feed Controls */
@@ -77,6 +94,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .feed-header-actions .theme-toggle-btn,

@@ -77,8 +77,8 @@ export default function Feed() {
           />
         </div>
         <div className="feed-header-actions">
-          <button onClick={() => searchInputRef.current?.focus()} className="theme-toggle-btn" title="Search">
-            <Search size={20} color="#666" />
+          <button onClick={() => searchInputRef.current?.focus()} className="theme-toggle-btn search-action-btn" title="Search">
+            <Search size={20} color="var(--text-main)" />
           </button>
           <button onClick={() => setDarkMode(!darkMode)} className="theme-toggle-btn" title="Toggle Theme">
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
