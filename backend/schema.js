@@ -136,12 +136,17 @@ const resolvers = {
   },
   Mutation: {
     register: async (_, { username, name, email, password }) => {
-      const emailRegex = /^\S+@\S+\.\S+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(email)) {
         throw new Error('Please enter a valid email address');
       }
 
       const lowerUsername = username.toLowerCase();
+      const usernameRegex = /^[a-z0-9_]+$/;
+      if (!usernameRegex.test(lowerUsername)) {
+        throw new Error('Username can only contain letters, numbers, and underscores');
+      }
+
       const existingUser = await User.findOne({ $or: [{ email }, { username: lowerUsername }] });
       if (existingUser) throw new Error('User with that email or username already exists');
       

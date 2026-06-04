@@ -28,9 +28,15 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const emailRegex = /^\S+@\S+\.\S+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       setErrorMsg("Please enter a valid email address (e.g. user@example.com)");
+      return;
+    }
+
+    const usernameRegex = /^[a-z0-9_]+$/;
+    if (!usernameRegex.test(username.toLowerCase())) {
+      setErrorMsg("Username can only contain small letters, numbers, and underscores (no spaces or @)");
       return;
     }
 
