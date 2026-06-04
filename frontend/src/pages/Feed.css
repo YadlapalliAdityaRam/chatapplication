@@ -57,20 +57,26 @@
   }
   
   .feed-header-row {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px; /* Tighter gap to save space */
   }
   
   .search-bar {
-    padding: 10px 14px;
+    padding: 8px 12px;
+    flex: 1 1 0%;
+    min-width: 0;
     width: 100%;
-    flex: none;
+  }
+  
+  .search-bar input {
+    font-size: 0.9rem;
   }
   
   .feed-header-actions {
+    flex-shrink: 0;
     width: auto;
-    justify-content: flex-end;
   }
 }
 
