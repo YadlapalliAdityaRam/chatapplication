@@ -1,9 +1,8 @@
 .mention-input-container {
-  position: relative;
   width: 100%;
   display: flex;
+  flex-direction: column;
   flex: 1;
-  z-index: 9999;
 }
 
 .mention-element {
@@ -11,27 +10,17 @@
 }
 
 .mention-suggestions {
-  position: absolute;
-  left: 0;
   background: var(--card-bg, #fff);
   border: 1px solid var(--border-color, #e1e8ed);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  max-height: 250px;
-  overflow-y: auto;
-  z-index: 10000;
-  min-width: 250px;
-}
-
-.suggestions-top {
-  bottom: 100%;
-  margin-bottom: 5px;
-}
-
-.suggestions-bottom {
-  top: 100%;
   margin-top: 5px;
+  margin-bottom: 10px;
 }
+
+/* Removed absolute positioning classes */
+
+/* Removed absolute positioning classes */
 
 .mention-suggestion-item {
   display: flex;
