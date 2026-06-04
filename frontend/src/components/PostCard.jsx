@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client/react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { TOGGLE_LIKE, ADD_COMMENT, DELETE_POST, DELETE_COMMENT, TOGGLE_FOLLOW } from '../graphql/mutations';
 import { GET_POSTS, GET_USER_PROFILE, GET_ME } from '../graphql/queries';
 import { useAuth } from '../context/AuthContext';
