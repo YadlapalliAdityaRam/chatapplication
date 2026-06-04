@@ -26,18 +26,7 @@
   flex-shrink: 0;
 }
 
-.create-post-box textarea {
-  flex: 1;
-  border: none;
-  resize: none;
-  font-size: 1.05rem;
-  font-family: inherit;
-  outline: none;
-  min-height: 40px;
-  background: transparent;
-  color: var(--text-main, #000);
-  padding-top: 8px;
-}
+
 
 .create-post-box .preview-image-container {
   position: relative;
