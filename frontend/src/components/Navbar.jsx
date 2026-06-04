@@ -82,6 +82,10 @@ export default function Navbar() {
 
           {token ? (
             <>
+              <button onClick={toggleTheme} className="header-icon-btn gray-btn" title="Toggle Theme">
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+
               <div className="notification-container" ref={notificationRef}>
                 <button onClick={handleBellClick} className="bell-btn">
                   <Bell size={20} />
@@ -111,22 +115,9 @@ export default function Navbar() {
                 )}
               </div>
               
-                <button onClick={toggleTheme} className="header-icon-btn gray-btn" title="Toggle Theme">
-                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                
-                <div className="header-profile-container">
-                  <Link to={`/profile/${username}`} className="header-profile-avatar">
-                    {data?.getMe?.avatar ? (
-                      <img src={data.getMe.avatar} alt="avatar" />
-                    ) : (
-                      <User size={18} />
-                    )}
-                  </Link>
-                  <button onClick={() => setShowLogoutConfirm(true)} className="header-icon-btn gray-btn logout-mobile-btn" title="Logout">
-                    <LogOut size={16} />
-                  </button>
-                </div>
+              <button onClick={() => setShowLogoutConfirm(true)} className="header-icon-btn gray-btn logout-mobile-btn" title="Logout">
+                <LogOut size={16} />
+              </button>
             </>
           ) : (
             <>
