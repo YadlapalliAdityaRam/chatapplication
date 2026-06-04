@@ -716,3 +716,12 @@ body, html {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+.formatted-link {
+  color: var(--primary-color, #1da1f2);
+  text-decoration: none;
+}
+
+.formatted-link:hover {
+  text-decoration: underline;
+}

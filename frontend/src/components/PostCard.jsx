@@ -9,22 +9,9 @@ import { timeAgo } from '../utils/formatTime';
 import { Link, useNavigate } from 'react-router-dom';
 import MentionInput from './MentionInput';
 import ConfirmModal from './ConfirmModal';
+import { renderFormattedText } from '../utils/renderText';
 
-const renderTextWithMentions = (text) => {
-  if (!text) return null;
-  const parts = text.split(/(@\w+)/g);
-  return parts.map((part, index) => {
-    if (part.startsWith('@')) {
-      const uname = part.substring(1);
-      return (
-        <Link key={index} to={`/profile/${uname}`} className="mention-link" onClick={(e) => e.stopPropagation()}>
-          {part}
-        </Link>
-      );
-    }
-    return <span key={index}>{part}</span>;
-  });
-};
+
 
 export default function PostCard({ post }) {
   const { username, token } = useAuth();
@@ -191,7 +178,7 @@ export default function PostCard({ post }) {
             />
           </div>
         )}
-        {post.text && <p className="post-description">{renderTextWithMentions(post.text)}</p>}
+        {post.text && <p className="post-description">{renderFormattedText(post.text)}</p>}
       </div>
 
       <div className="post-stats">
@@ -251,7 +238,7 @@ export default function PostCard({ post }) {
                   </Link>
                   <div className="comment-content">
                     <strong>{c.userDetails?.name || c.username}</strong>
-                    <p>{renderTextWithMentions(c.text)}</p>
+                    <p>{renderFormattedText(c.text)}</p>
                   </div>
                   {c.username === username && (
                     <button onClick={() => setCommentToDelete(c.id)} className="delete-comment-btn" title="Delete Comment">
@@ -323,7 +310,7 @@ export default function PostCard({ post }) {
 
               {post.text && (
                 <div className="image-modal-text">
-                  {renderTextWithMentions(post.text)}
+                  {renderFormattedText(post.text)}
                 </div>
               )}
             </div>

@@ -8,6 +8,7 @@ import { timeAgo } from '../utils/formatTime';
 import MentionInput from './MentionInput';
 import ConfirmModal from './ConfirmModal';
 import { ChatSkeleton } from './SkeletonLoader';
+import { renderFormattedText } from '../utils/renderText';
 import './ChatModal.css';
 
 export default function ChatModal({ withUser, onClose }) {
@@ -92,7 +93,7 @@ export default function ChatModal({ withUser, onClose }) {
               return (
                 <div key={msg.id} className={`chat-message ${isMine ? 'mine' : 'theirs'}`}>
                   {msg.media && <img src={msg.media} alt="Shared media" className="chat-media" />}
-                  {msg.text && <p className="chat-text">{msg.text}</p>}
+                  {msg.text && <p className="chat-text">{renderFormattedText(msg.text)}</p>}
                   <span className="chat-time">{timeAgo(msg.createdAt)}</span>
                 </div>
               );
