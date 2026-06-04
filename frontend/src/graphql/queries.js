@@ -6,9 +6,11 @@ export const GET_POSTS = gql`
       id
       author
       authorDetails {
+        id
         name
         username
         avatar
+        followers
         followRequests
       }
       text
@@ -72,9 +74,12 @@ export const GET_USER_PROFILE = gql`
         id
         author
         authorDetails {
+          id
           name
           username
           avatar
+          followers
+          followRequests
         }
         text
         image

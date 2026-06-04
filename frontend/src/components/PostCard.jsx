@@ -51,7 +51,10 @@ export default function PostCard({ post }) {
     refetchQueries: [{ query: GET_ME }]
   });
 
-  const isFollowing = meData?.getMe?.following?.includes(post.author);
+  const isFollowing = post.authorDetails?.followers 
+    ? post.authorDetails.followers.includes(username)
+    : meData?.getMe?.following?.includes(post.author);
+    
   const isRequested = post.authorDetails?.followRequests?.includes(username);
 
   const hasLiked = post.likes.includes(username);
