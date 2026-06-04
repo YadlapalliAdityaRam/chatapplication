@@ -55,8 +55,10 @@
 
   .search-bar {
     padding: 8px 12px;
+    width: calc(100% - 88px) !important; /* 100% - (2*36px icons + 8px gap + 8px row gap) */
+    flex: none !important;
   }
-
+  
   .search-bar input {
     font-size: 0.9rem;
   }
@@ -100,8 +102,8 @@
   padding: 10px 16px;
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  flex: 1 1 auto;   /* allow flexible growth/shrink */
-  min-width: 50px !important; /* Extremely important to let it shrink on mobile */
+  flex: none;
+  width: calc(100% - 160px); /* 100% - (3*40px icons + 24px gaps + 16px row gap) */
   overflow: hidden;
 }
 
