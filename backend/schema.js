@@ -87,7 +87,7 @@ const typeDefs = gql`
     toggleLike(postId: ID!): Post
     addComment(postId: ID!, text: String!): Post
     toggleFollow(username: String!): UserProfile
-    updateProfile(username: String, name: String, bio: String, avatar: String): User
+    updateProfile(name: String, bio: String, avatar: String): User
     markNotificationsRead: Boolean
     sendMessage(toUsername: String!, text: String, media: String): Conversation
     blockUser(username: String!, block: Boolean!): Conversation
@@ -289,65 +289,16 @@ const resolvers = {
       return { user: targetUser, posts };
     },
 
-    updateProfile: async (_, { username, name, bio, avatar }, context) => {
+    updateProfile: async (_, { name, bio, avatar }, context) => {
       if (!context.user) throw new Error('Authentication required');
-      const oldUsername = context.user.username;
-      const user = await User.findOne({ username: oldUsername });
+      const user = await User.findOne({ username: context.user.username });
       
       if (name !== undefined) user.name = name;
       if (bio !== undefined) user.bio = bio;
       if (avatar !== undefined) user.avatar = avatar;
       
-      let newToken = null;
-      if (username !== undefined && username.toLowerCase() !== oldUsername) {
-        const lowerUsername = username.toLowerCase();
-        // Check if taken
-        const existing = await User.findOne({ username: lowerUsername });
-        if (existing) throw new Error('Username already taken');
-
-        user.username = lowerUsername;
-
-        // Cascade updates
-        await Post.updateMany({ author: oldUsername }, { $set: { author: lowerUsername } });
-        await Post.updateMany({ likes: oldUsername }, { $set: { 'likes.$': lowerUsername } });
-        await Post.updateMany(
-          { 'comments.username': oldUsername },
-          { $set: { 'comments.$[elem].username': lowerUsername } },
-          { arrayFilters: [{ 'elem.username': oldUsername }] }
-        );
-        await User.updateMany({ followers: oldUsername }, { $set: { 'followers.$': lowerUsername } });
-        await User.updateMany({ following: oldUsername }, { $set: { 'following.$': lowerUsername } });
-        await User.updateMany(
-          { 'notifications.fromUser': oldUsername },
-          { $set: { 'notifications.$[elem].fromUser': lowerUsername } },
-          { arrayFilters: [{ 'elem.fromUser': oldUsername }] }
-        );
-        await User.updateMany(
-          { 'conversations.withUser': oldUsername },
-          { $set: { 'conversations.$[elem].withUser': lowerUsername } },
-          { arrayFilters: [{ 'elem.withUser': oldUsername }] }
-        );
-        
-        const usersWithConvos = await User.find({ 'conversations.withUser': lowerUsername });
-        for (let u of usersWithConvos) {
-           for (let c of u.conversations) {
-              if (c.withUser === lowerUsername) {
-                 for (let m of c.messages) {
-                    if (m.sender === oldUsername) m.sender = lowerUsername;
-                 }
-              }
-           }
-           await u.save();
-        }
-
-        newToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      }
-
       await user.save();
-      const updatedUser = user.toObject();
-      if (newToken) updatedUser.token = newToken;
-      
-      return updatedUser;
+      return user;
     },
 
     markNotificationsRead: async (_, __, context) => {

@@ -95,8 +95,8 @@ export const MARK_NOTIFICATIONS_READ = gql`
 `;
 
 export const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($username: String, $name: String, $bio: String, $avatar: String) {
-    updateProfile(username: $username, name: $name, bio: $bio, avatar: $avatar) {
+  mutation UpdateProfile($name: String, $bio: String, $avatar: String) {
+    updateProfile(name: $name, bio: $bio, avatar: $avatar) {
       id
       username
       name

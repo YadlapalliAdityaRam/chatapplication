@@ -85,7 +85,7 @@ export default function Profile() {
 
   const handleEditSave = (e) => {
     e.preventDefault();
-    updateProfile({ variables: { username: editUsername, name: editName, bio: editBio, avatar: editAvatar } });
+    updateProfile({ variables: { name: editName, bio: editBio, avatar: editAvatar } });
   };
 
   const openEdit = () => {
@@ -190,8 +190,9 @@ export default function Profile() {
                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} />
               </div>
               <div className="form-group">
-                <label>Username (small letters only)</label>
-                <input type="text" value={editUsername} onChange={(e) => setEditUsername(e.target.value.toLowerCase())} />
+                <label>Username</label>
+                <input type="text" value={editUsername} disabled style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-muted)', cursor: 'not-allowed' }} title="Usernames cannot be changed" />
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>Usernames cannot be changed.</small>
               </div>
               <div className="form-group">
                 <label>Bio</label>
