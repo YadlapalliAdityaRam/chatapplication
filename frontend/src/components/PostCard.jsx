@@ -125,7 +125,6 @@ export default function PostCard({ post }) {
       </div>
       
       <div className="post-content">
-        {post.text && <p>{renderTextWithMentions(post.text)}</p>}
         {allImages.length > 0 && (
           <div className="post-carousel-container" style={{ position: 'relative' }}>
             {allImages.length > 1 && (
@@ -160,6 +159,7 @@ export default function PostCard({ post }) {
             />
           </div>
         )}
+        {post.text && <p className="post-description">{renderTextWithMentions(post.text)}</p>}
       </div>
 
       <div className="post-stats">
