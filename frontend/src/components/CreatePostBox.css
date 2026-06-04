@@ -1,0 +1,128 @@
+.create-post-box {
+  background: var(--card-bg, white);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.create-post-input-wrapper {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.create-post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0932b, #eb4d4b, #4834d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.create-post-box textarea {
+  flex: 1;
+  border: none;
+  resize: none;
+  font-size: 1.05rem;
+  font-family: inherit;
+  outline: none;
+  min-height: 40px;
+  background: transparent;
+  color: var(--text-main, #000);
+  padding-top: 8px;
+}
+
+.create-post-box .preview-image-container {
+  position: relative;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.create-post-box .preview-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.create-post-box .remove-image {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-post-box .create-post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color, #f0f2f5);
+}
+
+.create-post-box .left-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.create-post-box .image-upload-btn, 
+.create-post-box .emoji-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 600;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  padding: 8px;
+  border-radius: 20px;
+}
+
+.create-post-box .emoji-toggle-btn:hover,
+.create-post-box .image-upload-btn:hover {
+  background: var(--bg-color, #f0f2f5);
+}
+
+.create-post-box .post-submit-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.create-post-box .post-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.create-post-box .emoji-picker-container {
+  margin-top: 10px;
+}

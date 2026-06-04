@@ -1,0 +1,134 @@
+/* Feed specific styles are in index.css for global scope */
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 80px; /* space for fab */
+}
+
+/* Floating Action Button */
+.fab-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #007bff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.fab-button:hover {
+  transform: scale(1.05);
+  background: #0056b3;
+}
+
+@media (max-width: 600px) {
+  .fab-button {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* Feed Controls */
+.feed-controls {
+  margin-bottom: 20px;
+}
+
+.feed-header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg, white);
+  padding: 10px 16px;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  flex: 1;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text-main, #000);
+}
+
+.feed-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feed-header-actions .theme-toggle-btn,
+.feed-profile-icon {
+  background: var(--card-bg, white);
+  border: 1px solid var(--border-color, #ddd);
+  color: var(--text-main, #333);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feed-header-actions .theme-toggle-btn:hover,
+.feed-profile-icon:hover {
+  background: var(--bg-color, #f0f2f5);
+}
+
+.filter-bubbles-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.filter-bubbles-container::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-bubble {
+  background: var(--card-bg, white);
+  border: 1px solid var(--border-color, #ddd);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted, #555);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.filter-bubble:hover {
+  background: var(--bg-color, #f0f2f5);
+}
+
+.filter-bubble.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
