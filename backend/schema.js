@@ -82,7 +82,7 @@ const typeDefs = gql`
 
   type Mutation {
     register(username: String!, name: String!, email: String!, password: String!): AuthPayload
-    login(username: String!, password: String!): AuthPayload
+    login(identifier: String!, password: String!): AuthPayload
     createPost(text: String, image: String, images: [String]): Post
     toggleLike(postId: ID!): Post
     addComment(postId: ID!, text: String!): Post
@@ -153,9 +153,14 @@ const resolvers = {
       return { token, username: user.username };
     },
     
-    login: async (_, { username, password }) => {
-      const lowerUsername = username.toLowerCase();
-      const user = await User.findOne({ username: lowerUsername });
+    login: async (_, { identifier, password }) => {
+      const lowerIdentifier = identifier.toLowerCase();
+      const user = await User.findOne({
+        $or: [
+          { email: lowerIdentifier },
+          { username: lowerIdentifier }
+        ]
+      });
       if (!user) throw new Error('User not found');
       
       const isMatch = await bcrypt.compare(password, user.password);
