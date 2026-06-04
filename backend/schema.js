@@ -289,6 +289,8 @@ const resolvers = {
       } else if (isRequested) {
         // Cancel request
         targetUser.followRequests = targetUser.followRequests.filter(u => u !== currentUserUsername);
+        // Delete the follow request notification
+        targetUser.notifications = targetUser.notifications.filter(n => !(n.type === 'FOLLOW_REQUEST' && n.fromUser === currentUserUsername));
       } else {
         // Send request
         targetUser.followRequests.push(currentUserUsername);

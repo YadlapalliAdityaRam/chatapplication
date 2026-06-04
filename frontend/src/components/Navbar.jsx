@@ -88,12 +88,12 @@ export default function Navbar() {
                 </button>
                 {showNotifications && (
                   <div className="notification-dropdown">
-                    <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <h4 style={{ margin: 0 }}>Notifications</h4>
+                    <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', padding: '4px 16px 0 16px' }}>
+                      <h4 style={{ margin: 0, padding: 0 }}>Notifications</h4>
                       {notifications.length > 0 && (
                         <button 
                           onClick={() => clearNotifications()} 
-                          style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1da1f2)', cursor: 'pointer', fontSize: '0.85rem' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1da1f2)', cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}
                         >
                           Clear All
                         </button>

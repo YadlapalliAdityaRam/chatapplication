@@ -52,6 +52,7 @@ export default function PostCard({ post }) {
   });
 
   const isFollowing = meData?.getMe?.following?.includes(post.author);
+  const isRequested = post.authorDetails?.followRequests?.includes(username);
 
   const hasLiked = post.likes.includes(username);
 
@@ -114,7 +115,7 @@ export default function PostCard({ post }) {
           </button>
         ) : username && (
           <button 
-            className={`follow-post-btn ${isFollowing ? 'following' : ''}`} 
+            className={`follow-post-btn ${isFollowing || isRequested ? 'following' : ''}`} 
             onClick={() => {
               if (!token) { navigate('/login'); return; }
               toggleFollow({ variables: { username: post.author } });
@@ -122,16 +123,16 @@ export default function PostCard({ post }) {
             style={{
               padding: '6px 16px',
               borderRadius: '20px',
-              border: isFollowing ? '1px solid var(--border-color)' : 'none',
-              background: isFollowing ? 'transparent' : 'var(--primary-color, #1da1f2)',
-              color: isFollowing ? 'var(--text-main)' : 'white',
+              border: (isFollowing || isRequested) ? '1px solid var(--border-color)' : 'none',
+              background: (isFollowing || isRequested) ? 'transparent' : 'var(--primary-color, #1da1f2)',
+              color: (isFollowing || isRequested) ? 'var(--text-main)' : 'white',
               fontWeight: '600',
               cursor: 'pointer',
               fontSize: '0.85rem',
               transition: 'all 0.2s'
             }}
           >
-            {isFollowing ? 'Following' : 'Follow'}
+            {isFollowing ? 'Following' : (isRequested ? 'Cancel Request' : 'Follow')}
           </button>
         )}
       </div>

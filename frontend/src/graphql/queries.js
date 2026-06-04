@@ -9,6 +9,7 @@ export const GET_POSTS = gql`
         name
         username
         avatar
+        followRequests
       }
       text
       image

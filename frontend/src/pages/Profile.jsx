@@ -150,7 +150,7 @@ export default function Profile() {
           ) : (
             <div className="action-buttons-row">
               <button onClick={handleFollowToggle} className={`btn-primary full-width ${isFollowing || isRequested ? 'following-btn' : ''}`}>
-                {isFollowing ? 'Following' : (isRequested ? 'Requested' : 'Follow')}
+                {isFollowing ? 'Following' : (isRequested ? 'Cancel Request' : 'Follow')}
               </button>
               <button onClick={() => setShowChat(true)} className="btn-secondary full-width">Message</button>
             </div>
