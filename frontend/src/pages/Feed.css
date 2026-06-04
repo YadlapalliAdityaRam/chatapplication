@@ -100,9 +100,8 @@
   padding: 10px 16px;
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  flex: 1 1 0% !important; /* Force zero basis so it doesn't rely on content size */
-  width: 0 !important; /* Violently prevent intrinsic width expansion */
-  min-width: 0 !important;
+  flex: 1 1 auto !important; /* Allow natural flex expansion */
+  min-width: 0 !important; /* Allow infinite shrinking */
   overflow: hidden;
 }
 
@@ -115,7 +114,7 @@
   background: transparent;
   color: var(--text-main, #000);
   min-width: 0 !important;
-  width: 0 !important; /* Violently prevent placeholder intrinsic width expansion */
+  width: 100%; /* Important: Let it base off 100% and shrink */
   text-overflow: ellipsis;
 }
 
