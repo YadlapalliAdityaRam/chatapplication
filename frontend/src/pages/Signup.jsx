@@ -10,6 +10,7 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -33,7 +34,12 @@ export default function Signup() {
       return;
     }
 
-    registerMutation({ variables: { username, name, email, password } });
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match");
+      return;
+    }
+
+    registerMutation({ variables: { username: username.toLowerCase(), name, email, password } });
   };
 
   return (
@@ -73,6 +79,13 @@ export default function Signup() {
           placeholder="Password" 
           value={password} 
           onChange={(e) => setPassword(e.target.value)} 
+          required 
+        />
+        <input 
+          type="password" 
+          placeholder="Confirm Password" 
+          value={confirmPassword} 
+          onChange={(e) => setConfirmPassword(e.target.value)} 
           required 
         />
         <button type="submit" disabled={loading}>
