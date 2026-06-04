@@ -40,6 +40,7 @@ export const GET_ME = gql`
       avatar
       followers
       following
+      followRequests
       notifications {
         id
         type
@@ -64,6 +65,7 @@ export const GET_USER_PROFILE = gql`
         avatar
         followers
         following
+        followRequests
       }
       posts {
         id

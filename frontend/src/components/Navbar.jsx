@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_ME } from '../graphql/queries';
-import { MARK_NOTIFICATIONS_READ } from '../graphql/mutations';
+import { MARK_NOTIFICATIONS_READ, CLEAR_NOTIFICATIONS, ACCEPT_FOLLOW_REQUEST, DECLINE_FOLLOW_REQUEST } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
 import { Bell } from 'lucide-react';
 import { timeAgo } from '../utils/formatTime';
@@ -36,6 +36,18 @@ export default function Navbar() {
     onCompleted: () => refetch()
   });
 
+  const [clearNotifications] = useMutation(CLEAR_NOTIFICATIONS, {
+    onCompleted: () => refetch()
+  });
+
+  const [acceptRequest] = useMutation(ACCEPT_FOLLOW_REQUEST, {
+    onCompleted: () => refetch()
+  });
+
+  const [declineRequest] = useMutation(DECLINE_FOLLOW_REQUEST, {
+    onCompleted: () => refetch()
+  });
+
   const notifications = data?.getMe?.notifications || [];
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -47,6 +59,9 @@ export default function Navbar() {
   };
 
   const handleNotificationClick = (n) => {
+    if (n.type === 'FOLLOW_REQUEST') {
+      return; // Handled by buttons
+    }
     setShowNotifications(false);
     if (n.type === 'CHAT') {
       setChatUser(n.fromUser);
@@ -73,7 +88,17 @@ export default function Navbar() {
                 </button>
                 {showNotifications && (
                   <div className="notification-dropdown">
-                    <h4>Notifications</h4>
+                    <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <h4 style={{ margin: 0 }}>Notifications</h4>
+                      {notifications.length > 0 && (
+                        <button 
+                          onClick={() => clearNotifications()} 
+                          style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1da1f2)', cursor: 'pointer', fontSize: '0.85rem' }}
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
                     {notifications.length === 0 ? (
                       <p className="no-notifications">No notifications yet</p>
                     ) : (
@@ -83,10 +108,29 @@ export default function Navbar() {
                             key={n.id} 
                             className={`notification-item ${!n.read ? 'unread' : ''}`}
                             onClick={() => handleNotificationClick(n)}
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: n.type === 'FOLLOW_REQUEST' ? 'default' : 'pointer' }}
                           >
-                            <strong>{n.fromUser}</strong> {n.text}
-                            <span className="notification-time">{timeAgo(n.createdAt)}</span>
+                            <div>
+                              <strong>{n.fromUser}</strong> {n.text}
+                              <span className="notification-time">{timeAgo(n.createdAt)}</span>
+                            </div>
+                            
+                            {n.type === 'FOLLOW_REQUEST' && (
+                              <div className="follow-request-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); acceptRequest({ variables: { username: n.fromUser } }); }}
+                                  style={{ background: '#1da1f2', color: 'white', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
+                                >
+                                  Approve
+                                </button>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); declineRequest({ variables: { username: n.fromUser } }); }}
+                                  style={{ background: '#e1e8ed', color: '#14171a', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
+                                >
+                                  Decline
+                                </button>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

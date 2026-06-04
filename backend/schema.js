@@ -58,6 +58,7 @@ const typeDefs = gql`
     avatar: String
     followers: [String]
     following: [String]
+    followRequests: [String]
     notifications: [Notification]
     token: String
   }
@@ -87,7 +88,10 @@ const typeDefs = gql`
     toggleLike(postId: ID!): Post
     addComment(postId: ID!, text: String!): Post
     toggleFollow(username: String!): UserProfile
+    acceptFollowRequest(username: String!): UserProfile
+    declineFollowRequest(username: String!): UserProfile
     updateProfile(name: String, bio: String, avatar: String): User
+    clearNotifications: Boolean
     markNotificationsRead: Boolean
     sendMessage(toUsername: String!, text: String, media: String): Conversation
     blockUser(username: String!, block: Boolean!): Conversation
@@ -276,17 +280,22 @@ const resolvers = {
       if (!targetUser) throw new Error('User not found');
 
       const isFollowing = currentUser.following.includes(username);
+      const isRequested = targetUser.followRequests.includes(currentUserUsername);
 
       if (isFollowing) {
+        // Unfollow
         currentUser.following = currentUser.following.filter(u => u !== username);
         targetUser.followers = targetUser.followers.filter(u => u !== currentUserUsername);
+      } else if (isRequested) {
+        // Cancel request
+        targetUser.followRequests = targetUser.followRequests.filter(u => u !== currentUserUsername);
       } else {
-        currentUser.following.push(username);
-        targetUser.followers.push(currentUserUsername);
+        // Send request
+        targetUser.followRequests.push(currentUserUsername);
         targetUser.notifications.push({
-          type: 'FOLLOW',
+          type: 'FOLLOW_REQUEST',
           fromUser: currentUserUsername,
-          text: 'started following you'
+          text: 'requested to follow you'
         });
       }
 
@@ -295,6 +304,54 @@ const resolvers = {
 
       const posts = await Post.find({ author: username }).sort({ createdAt: -1 });
       return { user: targetUser, posts };
+    },
+
+    acceptFollowRequest: async (_, { username }, context) => {
+      if (!context.user) throw new Error('Authentication required');
+      const currentUserUsername = context.user.username;
+
+      const currentUser = await User.findOne({ username: currentUserUsername });
+      const requester = await User.findOne({ username });
+      if (!requester) throw new Error('User not found');
+
+      // Remove from requests
+      currentUser.followRequests = currentUser.followRequests.filter(u => u !== username);
+      
+      // Add to followers/following if not already there
+      if (!currentUser.followers.includes(username)) {
+        currentUser.followers.push(username);
+      }
+      if (!requester.following.includes(currentUserUsername)) {
+        requester.following.push(currentUserUsername);
+      }
+
+      // Send accepted notification
+      requester.notifications.push({
+        type: 'FOLLOW_ACCEPTED',
+        fromUser: currentUserUsername,
+        text: 'accepted your follow request'
+      });
+
+      await currentUser.save();
+      await requester.save();
+
+      const posts = await Post.find({ author: currentUserUsername }).sort({ createdAt: -1 });
+      return { user: currentUser, posts };
+    },
+
+    declineFollowRequest: async (_, { username }, context) => {
+      if (!context.user) throw new Error('Authentication required');
+      const currentUserUsername = context.user.username;
+
+      const currentUser = await User.findOne({ username: currentUserUsername });
+      
+      // Remove from requests
+      currentUser.followRequests = currentUser.followRequests.filter(u => u !== username);
+      
+      await currentUser.save();
+
+      const posts = await Post.find({ author: currentUserUsername }).sort({ createdAt: -1 });
+      return { user: currentUser, posts };
     },
 
     updateProfile: async (_, { name, bio, avatar }, context) => {
@@ -313,6 +370,14 @@ const resolvers = {
       if (!context.user) throw new Error('Authentication required');
       const user = await User.findOne({ username: context.user.username });
       user.notifications.forEach(n => n.read = true);
+      await user.save();
+      return true;
+    },
+
+    clearNotifications: async (_, __, context) => {
+      if (!context.user) throw new Error('Authentication required');
+      const user = await User.findOne({ username: context.user.username });
+      user.notifications = [];
       await user.save();
       return true;
     },

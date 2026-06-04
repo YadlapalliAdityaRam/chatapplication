@@ -83,8 +83,41 @@ export const TOGGLE_FOLLOW = gql`
         id
         followers
         following
+        followRequests
       }
     }
+  }
+`;
+
+export const ACCEPT_FOLLOW_REQUEST = gql`
+  mutation AcceptFollowRequest($username: String!) {
+    acceptFollowRequest(username: $username) {
+      user {
+        id
+        followers
+        following
+        followRequests
+      }
+    }
+  }
+`;
+
+export const DECLINE_FOLLOW_REQUEST = gql`
+  mutation DeclineFollowRequest($username: String!) {
+    declineFollowRequest(username: $username) {
+      user {
+        id
+        followers
+        following
+        followRequests
+      }
+    }
+  }
+`;
+
+export const CLEAR_NOTIFICATIONS = gql`
+  mutation ClearNotifications {
+    clearNotifications
   }
 `;
 

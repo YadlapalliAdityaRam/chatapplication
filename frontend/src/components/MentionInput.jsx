@@ -22,15 +22,8 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
   useEffect(() => {
     if (isTextArea && inputRef.current) {
       inputRef.current.style.height = 'auto';
-      const scrollHeight = inputRef.current.scrollHeight;
-      const maxHeight = 300;
-      if (scrollHeight > maxHeight) {
-        inputRef.current.style.height = `${maxHeight}px`;
-        inputRef.current.style.overflowY = 'auto';
-      } else {
-        inputRef.current.style.height = `${scrollHeight}px`;
-        inputRef.current.style.overflowY = 'hidden';
-      }
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      inputRef.current.style.overflowY = 'hidden';
     }
   }, [value, isTextArea]);
 

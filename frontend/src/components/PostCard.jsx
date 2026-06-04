@@ -36,6 +36,7 @@ export default function PostCard({ post }) {
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isCopied, setIsCopied] = useState(false);
 
   const allImages = post.images && post.images.length > 0 ? post.images : (post.image ? [post.image] : []);
 
@@ -76,6 +77,17 @@ export default function PostCard({ post }) {
       deleteComment({ variables: { postId: post.id, commentId: commentToDelete } });
       setCommentToDelete(null);
     }
+  };
+
+  const handleShare = () => {
+    // Creating a pseudo post link or copying the profile link
+    const linkToCopy = `${window.location.origin}/profile/${post.author}`;
+    navigator.clipboard.writeText(linkToCopy).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
   };
 
   return (
@@ -176,9 +188,9 @@ export default function PostCard({ post }) {
           <MessageSquare size={20} />
           Comment {post.comments.length > 0 ? `(${post.comments.length})` : ''}
         </button>
-        <button className="action-btn">
+        <button onClick={handleShare} className="action-btn">
           <Share2 size={20} />
-          Share
+          {isCopied ? 'Copied!' : 'Share'}
         </button>
       </div>
 

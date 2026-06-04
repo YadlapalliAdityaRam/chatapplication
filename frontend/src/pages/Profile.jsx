@@ -9,6 +9,7 @@ import { ImagePlus, User, LogOut } from 'lucide-react';
 import ChatModal from '../components/ChatModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { ProfileSkeleton, PostSkeleton } from '../components/SkeletonLoader';
+import FollowListModal from '../components/FollowListModal';
 import './Profile.css';
 
 export default function Profile() {
@@ -57,6 +58,8 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
   const [activeTab, setActiveTab] = useState('Posts');
+  
+  const [modalType, setModalType] = useState(null); // 'followers' or 'following'
 
   if (loading) return (
     <div className="profile-page">
@@ -69,6 +72,7 @@ export default function Profile() {
 
   const { user, posts } = data.getUserProfile;
   const isFollowing = user.followers.includes(currentUser);
+  const isRequested = user.followRequests && user.followRequests.includes(currentUser);
 
   const handleFollowToggle = () => {
     toggleFollow({ variables: { username } });
@@ -118,11 +122,11 @@ export default function Profile() {
               <span className="stat-value">{posts.length}</span>
               <span className="stat-label">Posts</span>
             </div>
-            <div className="stat">
+            <div className="stat" onClick={() => setModalType('followers')} style={{ cursor: 'pointer' }}>
               <span className="stat-value">{user.followers.length}</span>
               <span className="stat-label">Followers</span>
             </div>
-            <div className="stat">
+            <div className="stat" onClick={() => setModalType('following')} style={{ cursor: 'pointer' }}>
               <span className="stat-value">{user.following.length}</span>
               <span className="stat-label">Following</span>
             </div>
@@ -145,8 +149,8 @@ export default function Profile() {
             </div>
           ) : (
             <div className="action-buttons-row">
-              <button onClick={handleFollowToggle} className={`btn-primary full-width ${isFollowing ? 'following-btn' : ''}`}>
-                {isFollowing ? 'Following' : 'Follow'}
+              <button onClick={handleFollowToggle} className={`btn-primary full-width ${isFollowing || isRequested ? 'following-btn' : ''}`}>
+                {isFollowing ? 'Following' : (isRequested ? 'Requested' : 'Follow')}
               </button>
               <button onClick={() => setShowChat(true)} className="btn-secondary full-width">Message</button>
             </div>
@@ -156,6 +160,22 @@ export default function Profile() {
 
       {showChat && (
         <ChatModal withUser={username} onClose={() => setShowChat(false)} />
+      )}
+
+      {modalType === 'followers' && (
+        <FollowListModal 
+          title="Followers" 
+          usernames={user.followers} 
+          onClose={() => setModalType(null)} 
+        />
+      )}
+
+      {modalType === 'following' && (
+        <FollowListModal 
+          title="Following" 
+          usernames={user.following} 
+          onClose={() => setModalType(null)} 
+        />
       )}
 
       {showLogoutConfirm && (

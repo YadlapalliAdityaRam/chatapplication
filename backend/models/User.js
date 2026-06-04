@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String, default: '' },
   followers: [{ type: String }],
   following: [{ type: String }],
+  followRequests: [{ type: String }],
   notifications: [notificationSchema],
   conversations: [conversationSchema]
 }, { timestamps: true });
