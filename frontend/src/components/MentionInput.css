@@ -17,6 +17,9 @@
   font-size: 1rem;
   font-family: inherit;
   color: var(--text-main, #000);
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .mention-suggestions {

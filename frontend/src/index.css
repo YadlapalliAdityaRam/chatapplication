@@ -28,15 +28,18 @@ body, html {
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  max-width: 100vw;
   width: 100%;
   min-height: 100vh;
+  position: relative;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
 }
 
 .container {
@@ -409,6 +412,8 @@ body, html {
 
 .post-content {
   margin-bottom: 15px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .post-content p {
