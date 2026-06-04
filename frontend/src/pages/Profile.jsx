@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_USER_PROFILE, GET_POSTS } from '../graphql/queries';
@@ -60,8 +60,16 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
   const [activeTab, setActiveTab] = useState('Posts');
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   
   const [modalType, setModalType] = useState(null); // 'followers' or 'following'
+
+  // Close avatar modal on Escape key
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') setShowAvatarModal(false); };
+    if (showAvatarModal) document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showAvatarModal]);
 
   if (loading) return (
     <div className="profile-page">
@@ -127,7 +135,18 @@ export default function Profile() {
     <div className="profile-page">
       <div className="profile-header-card">
         <div className="profile-top">
-          <div className="profile-avatar-large" style={user.avatar ? { backgroundImage: `url(${user.avatar})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#cbd5e1' }}>
+          <div
+            className="profile-avatar-large"
+            onClick={() => user.avatar && setShowAvatarModal(true)}
+            style={{
+              ...(user.avatar
+                ? { backgroundImage: `url(${user.avatar})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' }
+                : { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#cbd5e1' }),
+              cursor: user.avatar ? 'pointer' : 'default',
+              transition: 'opacity 0.2s'
+            }}
+            title={user.avatar ? 'View profile photo' : ''}
+          >
             {!user.avatar && <User size={48} color="#ffffff" />}
           </div>
           
@@ -174,6 +193,47 @@ export default function Profile() {
 
       {showChat && (
         <ChatModal withUser={username} onClose={() => setShowChat(false)} />
+      )}
+
+      {/* Avatar fullscreen lightbox */}
+      {showAvatarModal && user.avatar && (
+        <div
+          onClick={() => setShowAvatarModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(8px)',
+            animation: 'fadeIn 0.2s ease'
+          }}
+        >
+          <button
+            onClick={() => setShowAvatarModal(false)}
+            style={{
+              position: 'absolute', top: '20px', right: '24px',
+              background: 'rgba(255,255,255,0.15)', border: 'none',
+              borderRadius: '50%', width: '40px', height: '40px',
+              color: 'white', fontSize: '1.4rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backdropFilter: 'blur(4px)'
+            }}
+            title="Close"
+          >
+            ✕
+          </button>
+          <img
+            src={user.avatar}
+            alt={`${user.name || user.username}'s profile photo`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '90vw', maxHeight: '90vh',
+              borderRadius: '12px',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+              objectFit: 'contain',
+              animation: 'scaleIn 0.2s ease'
+            }}
+          />
+        </div>
       )}
 
       {modalType === 'followers' && (
