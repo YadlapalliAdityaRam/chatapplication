@@ -147,8 +147,11 @@ const resolvers = {
         throw new Error('Username can only contain letters, numbers, and underscores');
       }
 
-      const existingUser = await User.findOne({ $or: [{ email }, { username: lowerUsername }] });
-      if (existingUser) throw new Error('User with that email or username already exists');
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) throw new Error('An account with this email address already exists.');
+
+      const existingUser = await User.findOne({ username: lowerUsername });
+      if (existingUser) throw new Error('This username is already taken. Please choose another one.');
       
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = new User({ username: lowerUsername, name, email, password: hashedPassword });

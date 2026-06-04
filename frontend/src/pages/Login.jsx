@@ -18,7 +18,8 @@ export default function Login() {
       navigate('/');
     },
     onError: (error) => {
-      setErrorMsg(error.message);
+      const cleanMessage = error.message.replace('GraphQL error: ', '').replace('Response not successful: ', '');
+      setErrorMsg(cleanMessage);
     }
   });
 
