@@ -142,7 +142,7 @@
 
 .chat-input-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -164,6 +164,7 @@
   display: flex;
   align-items: center;
   padding: 6px;
+  height: 40px;
 }
 
 .chat-send-btn:disabled {
