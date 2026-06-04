@@ -10,6 +10,7 @@ import ChatModal from '../components/ChatModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { ProfileSkeleton, PostSkeleton } from '../components/SkeletonLoader';
 import FollowListModal from '../components/FollowListModal';
+import MentionInput from '../components/MentionInput';
 import './Profile.css';
 
 export default function Profile() {
@@ -290,7 +291,12 @@ export default function Profile() {
               </div>
               <div className="form-group">
                 <label>Bio</label>
-                <textarea rows="3" value={editBio} onChange={(e) => setEditBio(e.target.value)}></textarea>
+                <MentionInput 
+                  isTextArea={true} 
+                  disableMentions={true} 
+                  value={editBio} 
+                  onChange={(e) => setEditBio(e.target.value)} 
+                />
               </div>
               <div className="modal-actions">
                 <button type="button" onClick={() => setIsEditing(false)} className="btn-secondary">Cancel</button>

@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { GET_ALL_USERS } from '../graphql/queries';
 import { User } from 'lucide-react';
 import './MentionInput.css';
 
-export default function MentionInput({ value, onChange, placeholder, disabled, isTextArea, className }) {
+export default function MentionInput({ value, onChange, placeholder, disabled, isTextArea, disableMentions, className }) {
   const { data } = useQuery(GET_ALL_USERS);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestionQuery, setSuggestionQuery] = useState('');
   const [cursorPos, setCursorPos] = useState(null);
   
   const inputRef = useRef(null);
+  const hiddenRef = useRef(null);
 
   const users = data?.getAllUsers || [];
   
@@ -19,19 +20,13 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
     (u.name && u.name.toLowerCase().includes(suggestionQuery.toLowerCase()))
   ).slice(0, 5);
 
-  useEffect(() => {
-    if (isTextArea && inputRef.current) {
+  useLayoutEffect(() => {
+    if (isTextArea && inputRef.current && hiddenRef.current) {
       const el = inputRef.current;
+      const hiddenEl = hiddenRef.current;
       
-      const prevTransition = el.style.transition;
-      el.style.transition = 'none'; // Disable transition during calculation
-      
-      const windowScroll = window.scrollY;
-      
-      // Shrink to min height to calculate correct scrollHeight if text was deleted
-      el.style.height = '1px'; 
-      
-      const newHeight = el.scrollHeight;
+      // Calculate height from the hidden clone (which has height: 0 and overflow: hidden)
+      const newHeight = hiddenEl.scrollHeight;
       const maxHeight = 300; // Configurable max height
       
       if (newHeight <= maxHeight) {
@@ -41,21 +36,14 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
         el.style.height = `${maxHeight}px`;
         el.style.overflowY = 'auto';
       }
-      
-      // Force reflow and restore transition
-      void el.offsetHeight;
-      el.style.transition = prevTransition;
-      
-      // Prevent page jumping
-      if (window.scrollY !== windowScroll) {
-        window.scrollTo(window.scrollX, windowScroll);
-      }
     }
   }, [value, isTextArea]);
 
   const handleChange = (e) => {
     const val = e.target.value;
-    onChange(e); // Pass the whole event if they need it, or wait, standard onChange usually expects event. Let's pass event or string. In existing code it's e => setText(e.target.value). So onChange(e) is better.
+    onChange(e); 
+
+    if (disableMentions) return;
 
     const cursor = e.target.selectionStart;
     
@@ -99,7 +87,29 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
   const InputElement = isTextArea ? 'textarea' : 'input';
 
   return (
-    <div className="mention-input-container">
+    <div className="mention-input-container" style={{ position: 'relative' }}>
+      {isTextArea && (
+        <textarea
+          ref={hiddenRef}
+          className={className || "mention-element"}
+          style={{
+            position: 'absolute',
+            visibility: 'hidden',
+            height: '0',
+            minHeight: '0',
+            overflow: 'hidden',
+            top: 0,
+            left: 0,
+            width: '100%',
+            zIndex: -1000,
+            pointerEvents: 'none'
+          }}
+          value={value}
+          readOnly
+          tabIndex={-1}
+        />
+      )}
+      
       <InputElement
         ref={inputRef}
         type={!isTextArea ? "text" : undefined}
