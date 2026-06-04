@@ -56,13 +56,21 @@
     display: none; /* Hide redundant search button on very small screens */
   }
   
-  .search-bar {
-    padding: 8px 12px;
-    min-width: 0;
+  .feed-header-row {
+    flex-wrap: wrap;
   }
   
-  .search-bar input {
-    font-size: 0.9rem;
+  .search-bar {
+    padding: 10px 14px;
+    flex: 1 1 100%;
+    order: 2;
+    margin-top: 5px;
+  }
+  
+  .feed-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+    order: 1;
   }
 }
 
