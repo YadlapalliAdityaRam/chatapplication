@@ -154,9 +154,7 @@
   background: var(--bg-color, #f0f2f5);
 }
 
-.emoji-picker-container {
-  margin-bottom: 10px;
-}
+
 
 .post-submit-btn {
   background: #007bff;

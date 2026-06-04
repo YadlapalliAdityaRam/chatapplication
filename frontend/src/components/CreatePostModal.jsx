@@ -66,9 +66,12 @@ export default function CreatePostModal({ onClose }) {
             onChange={(e) => setText(e.target.value)} 
           />
           {showEmoji && (
-            <div className="emoji-picker-container">
-              <EmojiPicker onEmojiClick={onEmojiClick} width="100%" height={300} />
-            </div>
+            <>
+              <div className="emoji-keyboard-backdrop" onClick={() => setShowEmoji(false)} />
+              <div className="emoji-keyboard-container">
+                <EmojiPicker onEmojiClick={onEmojiClick} height={350} />
+              </div>
+            </>
           )}
 
           {images.length > 0 && (

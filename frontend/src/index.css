@@ -685,3 +685,34 @@ body, html {
 .profile-avatar-large:hover {
   opacity: 0.88;
 }
+
+.emoji-keyboard-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+}
+
+.emoji-keyboard-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: var(--card-bg, #fff);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  animation: slideUpKeyboard 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  justify-content: center;
+}
+
+.emoji-keyboard-container .EmojiPickerReact {
+  width: 100% !important;
+  max-width: 800px !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+@keyframes slideUpKeyboard {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
