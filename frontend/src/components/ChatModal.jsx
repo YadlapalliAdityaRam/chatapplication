@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_CONVERSATION } from '../graphql/queries';
 import { SEND_MESSAGE, BLOCK_USER } from '../graphql/mutations';
@@ -18,11 +18,17 @@ export default function ChatModal({ withUser, onClose }) {
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const initialLoadDone = useRef(false);
+
   const { data, loading, refetch } = useQuery(GET_CONVERSATION, {
     variables: { withUser },
-    pollInterval: 2000, // Short-polling for "live" chat
-    fetchPolicy: 'network-only'
+    pollInterval: 2000,
+    fetchPolicy: 'cache-and-network', // Serve cache instantly, refresh silently in background
+    notifyOnNetworkStatusChange: false // Prevent re-renders on background polls
   });
+
+  // True initial load = no cached data yet AND network is fetching
+  const isInitialLoad = loading && !data;
 
   const [sendMessage, { loading: sending }] = useMutation(SEND_MESSAGE, {
     onCompleted: () => {
@@ -83,7 +89,7 @@ export default function ChatModal({ withUser, onClose }) {
         </div>
 
         <div className="chat-messages">
-          {loading ? (
+          {isInitialLoad ? (
             <ChatSkeleton />
           ) : messages.length === 0 ? (
             <div className="no-messages">Say hi to {withUser}!</div>
