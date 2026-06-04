@@ -55,8 +55,6 @@
 
   .search-bar {
     padding: 8px 12px;
-    width: calc(100% - 88px) !important; /* 100% - (2*36px icons + 8px gap + 8px row gap) */
-    flex: none !important;
   }
   
   .search-bar input {
@@ -102,8 +100,9 @@
   padding: 10px 16px;
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  flex: none;
-  width: calc(100% - 160px); /* 100% - (3*40px icons + 24px gaps + 16px row gap) */
+  flex: 1 1 0% !important; /* Force zero basis so it doesn't rely on content size */
+  width: 0 !important; /* Violently prevent intrinsic width expansion */
+  min-width: 0 !important;
   overflow: hidden;
 }
 
@@ -111,12 +110,12 @@
 .search-bar input {
   border: none;
   outline: none;
-  flex: 1 1 auto;
+  flex: 1 1 0% !important; /* Force zero basis */
   font-size: 1rem;
   background: transparent;
   color: var(--text-main, #000);
-  min-width: 0 !important; /* Allow shrinking below placeholder text width */
-  width: 100%;
+  min-width: 0 !important;
+  width: 0 !important; /* Violently prevent placeholder intrinsic width expansion */
   text-overflow: ellipsis;
 }
 
