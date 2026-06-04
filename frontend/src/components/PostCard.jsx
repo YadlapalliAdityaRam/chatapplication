@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
-import { TOGGLE_LIKE, ADD_COMMENT, DELETE_POST, DELETE_COMMENT } from '../graphql/mutations';
-import { GET_POSTS, GET_USER_PROFILE } from '../graphql/queries';
+import { TOGGLE_LIKE, ADD_COMMENT, DELETE_POST, DELETE_COMMENT, TOGGLE_FOLLOW } from '../graphql/mutations';
+import { GET_POSTS, GET_USER_PROFILE, GET_ME } from '../graphql/queries';
 import { useAuth } from '../context/AuthContext';
 import { Heart, MessageSquare, Share2, Trash2, User, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +44,12 @@ export default function PostCard({ post }) {
     refetchQueries: [{ query: GET_POSTS }, { query: GET_USER_PROFILE, variables: { username } }]
   });
   const [deleteComment] = useMutation(DELETE_COMMENT);
+  const { data: meData } = useQuery(GET_ME, { skip: !username });
+  const [toggleFollow] = useMutation(TOGGLE_FOLLOW, {
+    refetchQueries: [{ query: GET_ME }]
+  });
+
+  const isFollowing = meData?.getMe?.following?.includes(post.author);
 
   const hasLiked = post.likes.includes(username);
 
@@ -87,9 +93,27 @@ export default function PostCard({ post }) {
           </Link>
           <span className="post-time">{timeAgo(post.createdAt)}</span>
         </div>
-        {post.author === username && (
+        {post.author === username ? (
           <button onClick={() => setShowDeletePostConfirm(true)} className="delete-post-btn" title="Delete Post">
             <Trash2 size={16} />
+          </button>
+        ) : (
+          <button 
+            className={`follow-post-btn ${isFollowing ? 'following' : ''}`} 
+            onClick={() => toggleFollow({ variables: { username: post.author } })}
+            style={{
+              padding: '6px 16px',
+              borderRadius: '20px',
+              border: isFollowing ? '1px solid var(--border-color)' : 'none',
+              background: isFollowing ? 'transparent' : 'var(--primary-color, #1da1f2)',
+              color: isFollowing ? 'var(--text-main)' : 'white',
+              fontWeight: '600',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            {isFollowing ? 'Following' : 'Follow'}
           </button>
         )}
       </div>
