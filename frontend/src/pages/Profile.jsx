@@ -28,8 +28,10 @@ export default function Profile() {
     skip: !isOwnProfile // Only fetch all posts if it's our own profile to populate tabs
   });
 
+  const [localFollowState, setLocalFollowState] = useState(null); // null | 'following' | 'requested' | 'none'
+
   const [toggleFollow] = useMutation(TOGGLE_FOLLOW, {
-    onCompleted: () => refetch()
+    onCompleted: () => { setLocalFollowState(null); refetch(); }
   });
 
   const [updateProfile] = useMutation(UPDATE_PROFILE, {
@@ -71,10 +73,22 @@ export default function Profile() {
   if (error) return <div className="error-state">User not found</div>;
 
   const { user, posts } = data.getUserProfile;
-  const isFollowing = user.followers.includes(currentUser);
-  const isRequested = user.followRequests && user.followRequests.includes(currentUser);
+  const serverIsFollowing = user.followers.includes(currentUser);
+  const serverIsRequested = user.followRequests && user.followRequests.includes(currentUser);
+
+  // Optimistic: use local state immediately, fall back to server state
+  const isFollowing = localFollowState === null ? serverIsFollowing : localFollowState === 'following';
+  const isRequested = localFollowState === null ? serverIsRequested : localFollowState === 'requested';
 
   const handleFollowToggle = () => {
+    // Optimistic update — instant UI response
+    if (isFollowing) {
+      setLocalFollowState('none');
+    } else if (isRequested) {
+      setLocalFollowState('none');
+    } else {
+      setLocalFollowState('requested');
+    }
     toggleFollow({ variables: { username } });
   };
 

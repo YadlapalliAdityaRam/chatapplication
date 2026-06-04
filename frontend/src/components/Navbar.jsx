@@ -14,6 +14,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [chatUser, setChatUser] = useState(null);
+  const [handledIds, setHandledIds] = useState(new Set()); // optimistic: immediately hide handled notifications
   const notificationRef = useRef(null);
 
   useEffect(() => {
@@ -41,15 +42,26 @@ export default function Navbar() {
   });
 
   const [acceptRequest] = useMutation(ACCEPT_FOLLOW_REQUEST, {
-    onCompleted: () => refetch()
+    onCompleted: () => { refetch(); }
   });
 
   const [declineRequest] = useMutation(DECLINE_FOLLOW_REQUEST, {
-    onCompleted: () => refetch()
+    onCompleted: () => { refetch(); }
   });
 
+  const handleAccept = (notifId, fromUser) => {
+    setHandledIds(prev => new Set([...prev, notifId]));
+    acceptRequest({ variables: { username: fromUser } });
+  };
+
+  const handleDecline = (notifId, fromUser) => {
+    setHandledIds(prev => new Set([...prev, notifId]));
+    declineRequest({ variables: { username: fromUser } });
+  };
+
   const notifications = data?.getMe?.notifications || [];
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const visibleNotifications = notifications.filter(n => !handledIds.has(n.id));
+  const unreadCount = visibleNotifications.filter(n => !n.read).length;
 
   const handleBellClick = () => {
     setShowNotifications(!showNotifications);
@@ -86,57 +98,57 @@ export default function Navbar() {
                   <Bell size={20} />
                   {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
                 </button>
-                {showNotifications && (
-                  <div className="notification-dropdown">
-                    <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', padding: '4px 16px 0 16px' }}>
-                      <h4 style={{ margin: 0, padding: 0 }}>Notifications</h4>
-                      {notifications.length > 0 && (
-                        <button 
-                          onClick={() => clearNotifications()} 
-                          style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1da1f2)', cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}
-                        >
-                          Clear All
-                        </button>
-                      )}
-                    </div>
-                    {notifications.length === 0 ? (
-                      <p className="no-notifications">No notifications yet</p>
-                    ) : (
-                      <div className="notification-list">
-                        {notifications.slice().reverse().map(n => (
-                          <div 
-                            key={n.id} 
-                            className={`notification-item ${!n.read ? 'unread' : ''}`}
-                            onClick={() => handleNotificationClick(n)}
-                            style={{ cursor: n.type === 'FOLLOW_REQUEST' ? 'default' : 'pointer' }}
-                          >
-                            <div>
-                              <strong>{n.fromUser}</strong> {n.text}
-                              <span className="notification-time">{timeAgo(n.createdAt)}</span>
-                            </div>
-                            
-                            {n.type === 'FOLLOW_REQUEST' && (
-                              <div className="follow-request-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); acceptRequest({ variables: { username: n.fromUser } }); }}
-                                  style={{ background: '#1da1f2', color: 'white', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
-                                >
-                                  Approve
-                                </button>
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); declineRequest({ variables: { username: n.fromUser } }); }}
-                                  style={{ background: '#e1e8ed', color: '#14171a', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
-                                >
-                                  Decline
-                                </button>
+                    {showNotifications && (
+                      <div className="notification-dropdown">
+                        <div className="notification-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', padding: '4px 16px 0 16px' }}>
+                          <h4 style={{ margin: 0, padding: 0 }}>Notifications</h4>
+                          {visibleNotifications.length > 0 && (
+                            <button 
+                              onClick={() => { clearNotifications(); setHandledIds(new Set()); }} 
+                              style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1da1f2)', cursor: 'pointer', fontSize: '0.85rem', padding: 0 }}
+                            >
+                              Clear All
+                            </button>
+                          )}
+                        </div>
+                        {visibleNotifications.length === 0 ? (
+                          <p className="no-notifications">No notifications yet</p>
+                        ) : (
+                          <div className="notification-list">
+                            {visibleNotifications.slice().reverse().map(n => (
+                              <div 
+                                key={n.id} 
+                                className={`notification-item ${!n.read ? 'unread' : ''}`}
+                                onClick={() => handleNotificationClick(n)}
+                                style={{ cursor: n.type === 'FOLLOW_REQUEST' ? 'default' : 'pointer' }}
+                              >
+                                <div>
+                                  <strong>{n.fromUser}</strong> {n.text}
+                                  <span className="notification-time">{timeAgo(n.createdAt)}</span>
+                                </div>
+                                
+                                {n.type === 'FOLLOW_REQUEST' && (
+                                  <div className="follow-request-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); handleAccept(n.id, n.fromUser); }}
+                                      style={{ background: '#1da1f2', color: 'white', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
+                                    >
+                                      Approve
+                                    </button>
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); handleDecline(n.id, n.fromUser); }}
+                                      style={{ background: '#e1e8ed', color: '#14171a', border: 'none', borderRadius: '15px', padding: '4px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
+                                    >
+                                      Decline
+                                    </button>
+                                  </div>
+                                )}
                               </div>
-                            )}
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
               </div>
             </>
           ) : (

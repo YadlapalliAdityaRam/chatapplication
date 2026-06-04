@@ -47,15 +47,34 @@ export default function PostCard({ post }) {
   });
   const [deleteComment] = useMutation(DELETE_COMMENT);
   const { data: meData } = useQuery(GET_ME, { skip: !username });
-  const [toggleFollow] = useMutation(TOGGLE_FOLLOW, {
-    refetchQueries: [{ query: GET_ME }]
-  });
+  const [localFollowState, setLocalFollowState] = useState(null); // null | 'following' | 'requested' | 'none'
 
-  const isFollowing = post.authorDetails?.followers 
+  const serverIsFollowing = post.authorDetails?.followers
     ? post.authorDetails.followers.includes(username)
     : meData?.getMe?.following?.includes(post.author);
-    
-  const isRequested = post.authorDetails?.followRequests?.includes(username);
+  const serverIsRequested = post.authorDetails?.followRequests?.includes(username);
+
+  // Optimistic: use local state immediately, fall back to server state
+  const isFollowing = localFollowState === null ? serverIsFollowing : localFollowState === 'following';
+  const isRequested = localFollowState === null ? serverIsRequested : localFollowState === 'requested';
+
+  const [toggleFollow] = useMutation(TOGGLE_FOLLOW, {
+    refetchQueries: [{ query: GET_ME }],
+    onCompleted: () => setLocalFollowState(null)
+  });
+
+  const handleFollowClick = () => {
+    if (!token) { navigate('/login'); return; }
+    // Optimistic update — instant UI response
+    if (isFollowing) {
+      setLocalFollowState('none');
+    } else if (isRequested) {
+      setLocalFollowState('none');
+    } else {
+      setLocalFollowState('requested');
+    }
+    toggleFollow({ variables: { username: post.author } });
+  };
 
   const hasLiked = post.likes.includes(username);
 
@@ -119,10 +138,7 @@ export default function PostCard({ post }) {
         ) : username && (
           <button 
             className={`follow-post-btn ${isFollowing || isRequested ? 'following' : ''}`} 
-            onClick={() => {
-              if (!token) { navigate('/login'); return; }
-              toggleFollow({ variables: { username: post.author } });
-            }}
+            onClick={handleFollowClick}
             style={{
               padding: '6px 16px',
               borderRadius: '20px',
