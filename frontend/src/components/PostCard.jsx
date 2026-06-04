@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { Heart, MessageSquare, Share2, Trash2, User, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { timeAgo } from '../utils/formatTime';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MentionInput from './MentionInput';
 import ConfirmModal from './ConfirmModal';
 
@@ -27,7 +27,8 @@ const renderTextWithMentions = (text) => {
 };
 
 export default function PostCard({ post }) {
-  const { username } = useAuth();
+  const { username, token } = useAuth();
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   
@@ -54,11 +55,13 @@ export default function PostCard({ post }) {
   const hasLiked = post.likes.includes(username);
 
   const handleLike = () => {
+    if (!token) { navigate('/login'); return; }
     toggleLike({ variables: { postId: post.id } });
   };
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
+    if (!token) { navigate('/login'); return; }
     if (!commentText.trim()) return;
     addComment({ variables: { postId: post.id, text: commentText } });
     setCommentText('');
@@ -97,10 +100,13 @@ export default function PostCard({ post }) {
           <button onClick={() => setShowDeletePostConfirm(true)} className="delete-post-btn" title="Delete Post">
             <Trash2 size={16} />
           </button>
-        ) : (
+        ) : username && (
           <button 
             className={`follow-post-btn ${isFollowing ? 'following' : ''}`} 
-            onClick={() => toggleFollow({ variables: { username: post.author } })}
+            onClick={() => {
+              if (!token) { navigate('/login'); return; }
+              toggleFollow({ variables: { username: post.author } });
+            }}
             style={{
               padding: '6px 16px',
               borderRadius: '20px',
@@ -184,14 +190,20 @@ export default function PostCard({ post }) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
-            <form onSubmit={handleCommentSubmit} className="comment-form">
-              <MentionInput 
-                placeholder="Write a comment..." 
-                value={commentText} 
-                onChange={(e) => setCommentText(e.target.value)} 
-              />
-              <button type="submit" disabled={!commentText.trim()}>Post</button>
-            </form>
+            {token ? (
+              <form onSubmit={handleCommentSubmit} className="comment-form">
+                <MentionInput 
+                  placeholder="Write a comment..." 
+                  value={commentText} 
+                  onChange={(e) => setCommentText(e.target.value)} 
+                />
+                <button type="submit" disabled={!commentText.trim()}>Post</button>
+              </form>
+            ) : (
+              <div className="guest-comment-prompt">
+                <Link to="/login">Log in</Link> or <Link to="/signup">sign up</Link> to comment
+              </div>
+            )}
             <div className="comments-list">
               {post.comments.map(c => (
                 <div key={c.id} className="comment">

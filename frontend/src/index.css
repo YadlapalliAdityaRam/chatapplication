@@ -92,7 +92,36 @@ body, html {
   gap: 12px;
 }
 
-/* Removed old nav links styles */
+/* Nav Auth Links */
+.nav-link {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.nav-link:hover {
+  background: var(--bg-color);
+}
+
+.nav-btn {
+  background: var(--primary-color, #1da1f2);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 20px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover {
+  background: #1a91da;
+}
+
 /* Auth Forms */
 .auth-container {
   background: var(--card-bg);

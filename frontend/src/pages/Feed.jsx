@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { GET_POSTS } from '../graphql/queries';
 import { motion } from 'framer-motion';
-import { Search, Sun, Moon, User } from 'lucide-react';
+import { Search, Sun, Moon, User, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import CreatePostBox from '../components/CreatePostBox';
@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import './Feed.css';
 
 export default function Feed() {
-  const { username } = useAuth();
+  const { username, token } = useAuth();
   const { data, loading, error } = useQuery(GET_POSTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Posts');
@@ -68,6 +68,20 @@ export default function Feed() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Login/Signup banner for unauthenticated users */}
+      {!token && (
+        <div className="guest-banner">
+          <div className="guest-banner-text">
+            <LogIn size={20} />
+            <span>Sign in to like, comment, and post</span>
+          </div>
+          <div className="guest-banner-actions">
+            <Link to="/login" className="guest-btn guest-btn-primary">Log In</Link>
+            <Link to="/signup" className="guest-btn guest-btn-outline">Sign Up</Link>
+          </div>
+        </div>
+      )}
+
       <div className="feed-header-row">
         <div className="search-bar">
           <input 
@@ -85,13 +99,19 @@ export default function Feed() {
           <button onClick={() => setDarkMode(!darkMode)} className="theme-toggle-btn" title="Toggle Theme">
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <Link to={`/profile/${username}`} className="feed-profile-icon">
-            <User size={20} />
-          </Link>
+          {token ? (
+            <Link to={`/profile/${username}`} className="feed-profile-icon">
+              <User size={20} />
+            </Link>
+          ) : (
+            <Link to="/login" className="feed-profile-icon" title="Log In">
+              <LogIn size={20} />
+            </Link>
+          )}
         </div>
       </div>
 
-      <CreatePostBox />
+      {token && <CreatePostBox />}
 
       <div className="feed-controls">
         
@@ -117,6 +137,11 @@ export default function Feed() {
           </>
         )}
         {error && <div className="error">Error loading posts.</div>}
+        {!loading && !error && filteredPosts.length === 0 && (
+          <div className="empty-feed">
+            <p>No posts yet. {token ? 'Be the first to post!' : 'Sign in to create a post!'}</p>
+          </div>
+        )}
         {filteredPosts.map((post, i) => (
           <motion.div 
             key={post.id}
