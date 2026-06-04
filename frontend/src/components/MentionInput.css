@@ -8,6 +8,15 @@
 
 .mention-element {
   width: 100%;
+  resize: none;
+  overflow-y: hidden;
+  min-height: 24px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-main, #000);
 }
 
 .mention-suggestions {

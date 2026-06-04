@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { GET_ALL_USERS } from '../graphql/queries';
 import { User } from 'lucide-react';
@@ -18,6 +18,13 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
     u.username.toLowerCase().includes(suggestionQuery.toLowerCase()) || 
     (u.name && u.name.toLowerCase().includes(suggestionQuery.toLowerCase()))
   ).slice(0, 5);
+
+  useEffect(() => {
+    if (isTextArea && inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+    }
+  }, [value, isTextArea]);
 
   const handleChange = (e) => {
     const val = e.target.value;
