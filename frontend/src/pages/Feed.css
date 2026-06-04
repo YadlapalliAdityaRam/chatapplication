@@ -52,25 +52,25 @@
     width: 36px;
     height: 36px;
   }
-  .search-action-btn {
-    display: none; /* Hide redundant search button on very small screens */
+  .feed-header-actions .search-action-btn {
+    display: none !important;
   }
   
   .feed-header-row {
-    flex-wrap: wrap;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 12px;
   }
   
   .search-bar {
     padding: 10px 14px;
-    flex: 1 1 100%;
-    order: 2;
-    margin-top: 5px;
+    width: 100%;
+    flex: none;
   }
   
   .feed-header-actions {
-    width: 100%;
+    width: auto;
     justify-content: flex-end;
-    order: 1;
   }
 }
 
