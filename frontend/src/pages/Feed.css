@@ -100,11 +100,13 @@
   padding: 10px 16px;
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  flex: 1 1 10px;
-  min-width: 10px !important;
+  flex: 1 1 auto;   /* allow flexible growth/shrink */
+  min-width: 50px !important; /* Must be less than 190px or it physically pushes icons off-screen on tiny phones */
+  max-width: 600px; /* optional cap for large screens */
   width: 100%;
   overflow: hidden;
 }
+
 
 .search-bar input {
   border: none;
