@@ -9,7 +9,6 @@
 .mention-element {
   width: 100%;
   resize: none;
-  overflow-y: hidden;
   min-height: 40px;
   background: transparent;
   border: none;
@@ -23,7 +22,6 @@
   line-height: 1.5;
   padding: 8px 0;
   box-sizing: border-box;
-  transition: height 0.15s ease;
 }
 
 .mention-suggestions {

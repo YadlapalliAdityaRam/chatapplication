@@ -123,6 +123,7 @@ export default function ChatModal({ withUser, onClose }) {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 disabled={sending}
+                isTextArea={true}
               />
               <button type="submit" className="chat-send-btn" disabled={sending || (!text && !media)}>
                 <Send size={20} />

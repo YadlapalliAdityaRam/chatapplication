@@ -227,7 +227,8 @@ export default function PostCard({ post }) {
                 <MentionInput 
                   placeholder="Write a comment..." 
                   value={commentText} 
-                  onChange={(e) => setCommentText(e.target.value)} 
+                  onChange={(e) => setCommentText(e.target.value)}
+                  isTextArea={true}
                 />
                 <button type="submit" disabled={!commentText.trim()}>Post</button>
               </form>

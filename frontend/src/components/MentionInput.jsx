@@ -21,9 +21,35 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
 
   useEffect(() => {
     if (isTextArea && inputRef.current) {
-      inputRef.current.style.height = 'auto';
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-      inputRef.current.style.overflowY = 'hidden';
+      const el = inputRef.current;
+      
+      const prevTransition = el.style.transition;
+      el.style.transition = 'none'; // Disable transition during calculation
+      
+      const windowScroll = window.scrollY;
+      
+      // Shrink to min height to calculate correct scrollHeight if text was deleted
+      el.style.height = '1px'; 
+      
+      const newHeight = el.scrollHeight;
+      const maxHeight = 300; // Configurable max height
+      
+      if (newHeight <= maxHeight) {
+        el.style.height = `${newHeight}px`;
+        el.style.overflowY = 'hidden';
+      } else {
+        el.style.height = `${maxHeight}px`;
+        el.style.overflowY = 'auto';
+      }
+      
+      // Force reflow and restore transition
+      void el.offsetHeight;
+      el.style.transition = prevTransition;
+      
+      // Prevent page jumping
+      if (window.scrollY !== windowScroll) {
+        window.scrollTo(window.scrollX, windowScroll);
+      }
     }
   }, [value, isTextArea]);
 
