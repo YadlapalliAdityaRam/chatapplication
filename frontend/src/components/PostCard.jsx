@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { TOGGLE_LIKE, ADD_COMMENT, DELETE_POST, DELETE_COMMENT } from '../graphql/mutations';
 import { GET_POSTS, GET_USER_PROFILE } from '../graphql/queries';
 import { useAuth } from '../context/AuthContext';
-import { Heart, MessageSquare, Share2, Trash2, User } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Trash2, User, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { timeAgo } from '../utils/formatTime';
 import { Link } from 'react-router-dom';
@@ -33,6 +33,7 @@ export default function PostCard({ post }) {
   
   const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   const [toggleLike] = useMutation(TOGGLE_LIKE);
   const [addComment] = useMutation(ADD_COMMENT);
@@ -92,7 +93,14 @@ export default function PostCard({ post }) {
       
       <div className="post-content">
         {post.text && <p>{renderTextWithMentions(post.text)}</p>}
-        {post.image && <img src={post.image} alt="Post content" className="post-image" />}
+        {post.image && (
+          <img 
+            src={post.image} 
+            alt="Post content" 
+            className="post-image" 
+            onClick={() => setShowImageModal(true)}
+          />
+        )}
       </div>
 
       <div className="post-stats">
@@ -181,6 +189,31 @@ export default function PostCard({ post }) {
           onCancel={() => setCommentToDelete(null)}
         />
       )}
+
+      <AnimatePresence>
+        {showImageModal && (
+          <motion.div 
+            className="image-modal-overlay" 
+            onClick={() => setShowImageModal(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="image-modal-close" onClick={() => setShowImageModal(false)}>
+                <X size={20} color="#fff" />
+              </button>
+              <img src={post.image} alt="Full post" className="image-modal-img" />
+              {post.text && (
+                <div className="image-modal-text">
+                  {renderTextWithMentions(post.text)}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
