@@ -103,7 +103,6 @@
   flex: 1 1 auto;   /* allow flexible growth/shrink */
   min-width: 50px !important; /* Must be less than 190px or it physically pushes icons off-screen on tiny phones */
   max-width: 600px; /* optional cap for large screens */
-  width: 100%;
   overflow: hidden;
 }
 
