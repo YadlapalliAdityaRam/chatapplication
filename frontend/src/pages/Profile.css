@@ -1,4 +1,4 @@
-﻿.profile-page {
+.profile-page {
   max-width: 600px;
   margin: 0 auto;
   padding-bottom: 80px;
@@ -91,6 +91,7 @@
 
 .action-buttons-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -151,6 +152,13 @@
 .tab.active {
   color: #007bff;
   border-bottom: 2px solid #007bff;
+}
+
+@media (max-width: 480px) {
+  .tab {
+    padding: 12px 4px;
+    font-size: 0.8rem;
+  }
 }
 
 .profile-posts {
