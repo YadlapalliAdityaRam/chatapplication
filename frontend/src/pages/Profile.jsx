@@ -5,16 +5,18 @@ import { GET_USER_PROFILE, GET_POSTS } from '../graphql/queries';
 import { TOGGLE_FOLLOW, UPDATE_PROFILE } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
-import { ImagePlus, User } from 'lucide-react';
+import { ImagePlus, User, LogOut } from 'lucide-react';
 import ChatModal from '../components/ChatModal';
+import ConfirmModal from '../components/ConfirmModal';
 import { ProfileSkeleton, PostSkeleton } from '../components/SkeletonLoader';
 import './Profile.css';
 
 export default function Profile() {
   const { username } = useParams();
-  const { username: currentUser, login } = useAuth();
+  const { username: currentUser, login, logout } = useAuth();
   const navigate = useNavigate();
   const isOwnProfile = username === currentUser;
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const { data, loading, error, refetch } = useQuery(GET_USER_PROFILE, {
     variables: { username },
@@ -135,7 +137,12 @@ export default function Profile() {
 
         <div className="profile-actions">
           {isOwnProfile ? (
-            <button onClick={openEdit} className="btn-secondary full-width">Edit Profile</button>
+            <div className="action-buttons-row">
+              <button onClick={openEdit} className="btn-secondary full-width">Edit Profile</button>
+              <button onClick={() => setShowLogoutConfirm(true)} className="btn-secondary" style={{ color: '#e0245e', padding: '8px', flexShrink: 0 }} title="Logout">
+                <LogOut size={20} />
+              </button>
+            </div>
           ) : (
             <div className="action-buttons-row">
               <button onClick={handleFollowToggle} className={`btn-primary full-width ${isFollowing ? 'following-btn' : ''}`}>
@@ -147,7 +154,22 @@ export default function Profile() {
         </div>
       </div>
 
-      {showChat && <ChatModal withUser={username} onClose={() => setShowChat(false)} />}
+      {showChat && (
+        <ChatModal withUser={username} onClose={() => setShowChat(false)} />
+      )}
+
+      {showLogoutConfirm && (
+        <ConfirmModal 
+          title="Log Out"
+          message="Are you sure you want to log out of your account?"
+          confirmText="Log Out"
+          onConfirm={() => {
+            setShowLogoutConfirm(false);
+            logout();
+          }}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
+      )}
 
       {isEditing && (
         <div className="edit-profile-modal">

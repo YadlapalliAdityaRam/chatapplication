@@ -4,24 +4,17 @@ import { useQuery, useMutation } from '@apollo/client/react';
 import { GET_ME } from '../graphql/queries';
 import { MARK_NOTIFICATIONS_READ } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Bell, Sun, Moon, Search } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { timeAgo } from '../utils/formatTime';
 import ChatModal from './ChatModal';
 import ConfirmModal from './ConfirmModal';
 
 export default function Navbar() {
-  const { token, username, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [chatUser, setChatUser] = useState(null);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [isDark, setIsDark] = useState(document.body.classList.contains('dark-theme'));
   const notificationRef = useRef(null);
-  
-  const toggleTheme = () => {
-    const isDarkMode = document.body.classList.toggle('dark-theme');
-    setIsDark(isDarkMode);
-  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -65,27 +58,14 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-container header-redesign">
-        {token && (
-          <div className="header-search-container">
-            <input 
-              type="text" 
-              className="header-search-input" 
-              placeholder="Search promotions, users, posts..." 
-            />
-            <button className="header-icon-btn blue-btn">
-              <Search size={18} color="white" />
-            </button>
-          </div>
-        )}
+        <Link to="/" className="nav-logo" style={{ display: 'block' }}>
+          Social
+        </Link>
 
         <div className="header-actions">
 
           {token ? (
             <>
-              <button onClick={toggleTheme} className="header-icon-btn gray-btn" title="Toggle Theme">
-                {isDark ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-
               <div className="notification-container" ref={notificationRef}>
                 <button onClick={handleBellClick} className="bell-btn">
                   <Bell size={20} />
@@ -114,36 +94,16 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              
-              <button onClick={() => setShowLogoutConfirm(true)} className="header-icon-btn gray-btn logout-mobile-btn" title="Logout">
-                <LogOut size={16} />
-              </button>
             </>
           ) : (
             <>
               <Link to="/login" className="nav-link">Log In</Link>
               <Link to="/signup" className="nav-btn">Sign Up</Link>
-              <button onClick={toggleTheme} className="header-icon-btn gray-btn" title="Toggle Theme">
-                {isDark ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
             </>
           )}
         </div>
       </div>
       {chatUser && <ChatModal withUser={chatUser} onClose={() => setChatUser(null)} />}
-      
-      {showLogoutConfirm && (
-        <ConfirmModal 
-          title="Log Out"
-          message="Are you sure you want to log out of your account?"
-          confirmText="Log Out"
-          onConfirm={() => {
-            setShowLogoutConfirm(false);
-            logout();
-          }}
-          onCancel={() => setShowLogoutConfirm(false)}
-        />
-      )}
     </nav>
   );
 }
