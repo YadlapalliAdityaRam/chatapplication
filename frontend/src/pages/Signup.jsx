@@ -24,8 +24,15 @@ export default function Signup() {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg("Please enter a valid email address (e.g. user@example.com)");
+      return;
+    }
+
     registerMutation({ variables: { username, name, email, password } });
   };
 

@@ -135,6 +135,11 @@ const resolvers = {
   },
   Mutation: {
     register: async (_, { username, name, email, password }) => {
+      const emailRegex = /^\S+@\S+\.\S+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
       const lowerUsername = username.toLowerCase();
       const existingUser = await User.findOne({ $or: [{ email }, { username: lowerUsername }] });
       if (existingUser) throw new Error('User with that email or username already exists');
