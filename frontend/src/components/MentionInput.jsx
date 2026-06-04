@@ -78,7 +78,7 @@ export default function MentionInput({ value, onChange, placeholder, disabled, i
       />
       
       {showSuggestions && filteredUsers.length > 0 && (
-        <div className={`mention-suggestions ${isTextArea ? 'suggestions-top' : 'suggestions-top'}`}>
+        <div className="mention-suggestions suggestions-bottom">
           {filteredUsers.map(u => (
             <div 
               key={u.id} 
