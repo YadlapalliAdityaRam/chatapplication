@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const { login } = useAuth();
@@ -24,7 +24,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    loginMutation({ variables: { identifier: identifier.toLowerCase(), password } });
+    loginMutation({ variables: { email, password } });
   };
 
   return (
@@ -39,10 +39,10 @@ export default function Login() {
       {errorMsg && <div className="error-msg">{errorMsg}</div>}
       <form onSubmit={handleSubmit} className="auth-form">
         <input 
-          type="text" 
-          placeholder="Email or Username" 
-          value={identifier} 
-          onChange={(e) => setIdentifier(e.target.value)} 
+          type="email" 
+          placeholder="Email address" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
           required 
         />
         <input 
