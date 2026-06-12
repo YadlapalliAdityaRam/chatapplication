@@ -1,6 +1,8 @@
 const { gql } = require('apollo-server-express');
 const User = require('./models/User');
 const Post = require('./models/Post');
+const Conversation = require('./models/Conversation');
+const Message = require('./models/Message');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -117,12 +119,26 @@ const resolvers = {
     },
     getConversation: async (_, { withUser }, context) => {
       if (!context.user) throw new Error('Authentication required');
-      const currentUser = await User.findOne({ username: context.user.username });
-      const conversation = currentUser.conversations.find(c => c.withUser === withUser);
+      const currentUser = context.user.username;
+      
+      let conversation = await Conversation.findOne({
+        participants: { $all: [currentUser, withUser] }
+      });
+      
       if (!conversation) {
         return { withUser, blocked: false, messages: [] };
       }
-      return conversation;
+      
+      const messages = await Message.find({ conversationId: conversation._id })
+        .sort({ createdAt: -1 })
+        .limit(50);
+        
+      return {
+        id: conversation._id,
+        withUser,
+        blocked: conversation.blockedBy && conversation.blockedBy.includes(currentUser),
+        messages: messages.reverse()
+      };
     },
     getAllUsers: async () => {
       return await User.find({}, 'id username name avatar');
@@ -388,29 +404,29 @@ const resolvers = {
       if (!context.user) throw new Error('Authentication required');
       const senderName = context.user.username;
       
-      const sender = await User.findOne({ username: senderName });
       const receiver = await User.findOne({ username: toUsername });
       if (!receiver) throw new Error('User not found');
 
-      let senderConv = sender.conversations.find(c => c.withUser === toUsername);
-      if (!senderConv) {
-        sender.conversations.push({ withUser: toUsername, messages: [] });
-        senderConv = sender.conversations[sender.conversations.length - 1];
+      let conversation = await Conversation.findOne({
+        participants: { $all: [senderName, toUsername] }
+      });
+
+      if (!conversation) {
+        conversation = new Conversation({ participants: [senderName, toUsername] });
+        await conversation.save();
       }
 
-      let receiverConv = receiver.conversations.find(c => c.withUser === senderName);
-      if (!receiverConv) {
-        receiver.conversations.push({ withUser: senderName, messages: [] });
-        receiverConv = receiver.conversations[receiver.conversations.length - 1];
-      }
-
-      if (senderConv.blocked || receiverConv.blocked) {
+      if (conversation.blockedBy && conversation.blockedBy.length > 0) {
         throw new Error('Cannot send message, user is blocked');
       }
 
-      const message = { sender: senderName, text, media, createdAt: new Date() };
-      senderConv.messages.push(message);
-      receiverConv.messages.push(message);
+      const message = new Message({
+        conversationId: conversation._id,
+        sender: senderName,
+        text,
+        media
+      });
+      await message.save();
 
       // Add chat notification to receiver
       const existingNotif = receiver.notifications.find(n => n.type === 'CHAT' && n.fromUser === senderName && !n.read);
@@ -420,27 +436,61 @@ const resolvers = {
           fromUser: senderName,
           text: 'sent you a message'
         });
+        await receiver.save();
       }
 
-      await sender.save();
-      await receiver.save();
-      return senderConv;
+      const msgObj = {
+        id: message._id,
+        sender: message.sender,
+        text: message.text,
+        media: message.media,
+        createdAt: message.createdAt
+      };
+
+      if (context.io) {
+        context.io.to(toUsername).emit('newMessage', { withUser: senderName, message: msgObj });
+        context.io.to(senderName).emit('newMessage', { withUser: toUsername, message: msgObj });
+      }
+
+      const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(50);
+      return {
+        id: conversation._id,
+        withUser: toUsername,
+        blocked: false,
+        messages: messages.reverse()
+      };
     },
 
     blockUser: async (_, { username, block }, context) => {
       if (!context.user) throw new Error('Authentication required');
-      const currentUser = await User.findOne({ username: context.user.username });
+      const currentUser = context.user.username;
       
-      let conv = currentUser.conversations.find(c => c.withUser === username);
-      if (!conv) {
-        currentUser.conversations.push({ withUser: username, blocked: block, messages: [] });
-        conv = currentUser.conversations[currentUser.conversations.length - 1];
-      } else {
-        conv.blocked = block;
+      let conversation = await Conversation.findOne({
+        participants: { $all: [currentUser, username] }
+      });
+      
+      if (!conversation) {
+        conversation = new Conversation({ participants: [currentUser, username] });
       }
       
-      await currentUser.save();
-      return conv;
+      if (!conversation.blockedBy) conversation.blockedBy = [];
+      
+      const isBlockedIndex = conversation.blockedBy.indexOf(currentUser);
+      if (block && isBlockedIndex === -1) {
+        conversation.blockedBy.push(currentUser);
+      } else if (!block && isBlockedIndex !== -1) {
+        conversation.blockedBy.splice(isBlockedIndex, 1);
+      }
+      
+      await conversation.save();
+      
+      const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(50);
+      return {
+        id: conversation._id,
+        withUser: username,
+        blocked: block,
+        messages: messages.reverse()
+      };
     }
   }
 };

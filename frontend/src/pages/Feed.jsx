@@ -16,6 +16,17 @@ export default function Feed() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Posts');
   const searchInputRef = useRef(null);
+  const [wakingUp, setWakingUp] = useState(false);
+
+  // Show "server waking up" banner after 4s of loading (Render cold-start)
+  useEffect(() => {
+    if (!loading) {
+      setWakingUp(false);
+      return;
+    }
+    const timer = setTimeout(() => setWakingUp(true), 4000);
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
@@ -131,12 +142,25 @@ export default function Feed() {
       <div className="posts-list">
         {loading && (
           <>
+            {wakingUp && (
+              <div className="waking-up-banner">
+                <span className="waking-up-spinner" />
+                <div>
+                  <strong>Server is waking up…</strong>
+                  <p>This takes up to 30 seconds on first load. Hang tight!</p>
+                </div>
+              </div>
+            )}
             <PostSkeleton />
             <PostSkeleton />
             <PostSkeleton />
           </>
         )}
-        {error && <div className="error">Error loading posts.</div>}
+        {error && (
+          <div className="error">
+            ⚠️ Could not connect to server. Please refresh or wait a moment and try again.
+          </div>
+        )}
         {!loading && !error && filteredPosts.length === 0 && (
           <div className="empty-feed">
             <p>No posts yet. {token ? 'Be the first to post!' : 'Sign in to create a post!'}</p>

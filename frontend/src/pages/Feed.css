@@ -90,6 +90,52 @@
   padding-bottom: 80px; /* space for fab */
 }
 
+/* Render cold-start waking-up banner */
+.waking-up-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.12), rgba(255, 120, 0, 0.08));
+  border: 1px solid rgba(255, 160, 0, 0.35);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: var(--text-main, #333);
+  font-size: 0.9rem;
+  animation: fadeInDown 0.4s ease;
+}
+
+.waking-up-banner strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  color: #c47a00;
+}
+
+.waking-up-banner p {
+  margin: 0;
+  color: var(--text-muted, #666);
+  font-size: 0.83rem;
+}
+
+.waking-up-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 160, 0, 0.2);
+  border-top-color: #f0a500;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Floating Action Button */
 .fab-button {
   position: fixed;

@@ -8,18 +8,6 @@ const notificationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const messageSchema = new mongoose.Schema({
-  sender: { type: String, required: true },
-  text: { type: String },
-  media: { type: String }, // Base64
-  createdAt: { type: Date, default: Date.now }
-});
-
-const conversationSchema = new mongoose.Schema({
-  withUser: { type: String, required: true },
-  blocked: { type: Boolean, default: false },
-  messages: [messageSchema]
-});
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -31,8 +19,7 @@ const userSchema = new mongoose.Schema({
   followers: [{ type: String }],
   following: [{ type: String }],
   followRequests: [{ type: String }],
-  notifications: [notificationSchema],
-  conversations: [conversationSchema]
+  notifications: [notificationSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

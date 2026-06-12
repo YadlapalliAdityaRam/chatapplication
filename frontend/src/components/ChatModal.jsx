@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useQuery, useMutation } from '@apollo/client/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
+import { io } from 'socket.io-client';
 import { GET_CONVERSATION } from '../graphql/queries';
 import { SEND_MESSAGE, BLOCK_USER } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
@@ -18,13 +19,12 @@ export default function ChatModal({ withUser, onClose }) {
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const initialLoadDone = useRef(false);
+  const client = useApolloClient();
 
   const { data, loading, refetch } = useQuery(GET_CONVERSATION, {
     variables: { withUser },
-    pollInterval: 2000,
     fetchPolicy: 'cache-and-network', // Serve cache instantly, refresh silently in background
-    notifyOnNetworkStatusChange: false // Prevent re-renders on background polls
+    notifyOnNetworkStatusChange: false // Prevent re-renders on background network checks
   });
 
   // True initial load = no cached data yet AND network is fetching
@@ -53,6 +53,43 @@ export default function ChatModal({ withUser, onClose }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
+
+  useEffect(() => {
+    const SOCKET_URL = import.meta.env.VITE_GRAPHQL_URI ? import.meta.env.VITE_GRAPHQL_URI.replace('/graphql', '') : 'http://localhost:5000';
+    const socket = io(SOCKET_URL);
+    
+    socket.emit('join', currentUser);
+
+    socket.on('newMessage', (payload) => {
+      if (payload.withUser === withUser) {
+        const existingData = client.readQuery({
+          query: GET_CONVERSATION,
+          variables: { withUser }
+        });
+        
+        if (existingData && existingData.getConversation) {
+          const existingMessages = existingData.getConversation.messages;
+          if (!existingMessages.find(m => m.id === payload.message.id)) {
+            client.writeQuery({
+              query: GET_CONVERSATION,
+              variables: { withUser },
+              data: {
+                getConversation: {
+                  ...existingData.getConversation,
+                  messages: [...existingMessages, payload.message]
+                }
+              }
+            });
+            setTimeout(scrollToBottom, 50);
+          }
+        }
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [currentUser, withUser, client]);
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
